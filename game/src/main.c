@@ -1,6 +1,6 @@
 #include "raylib.h"
 int main(void)
-{
+{   // Initialization of first Raylib window
 	InitWindow(800, 450, "raylib [core] example - basic window");
 	while (!WindowShouldClose())
 	{
