@@ -10,4 +10,7 @@ typedef struct Body
 	Vector2 acceleration;
 	float mass;
 
+	struct Body* next;
+	struct Body* prev;
+
 } Body;
