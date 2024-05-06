@@ -8,10 +8,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define TRACERLIFESPAN 10.0f
-#define DECAY_RATE 0.9f
-
-
 int main(void)
 {
 	// Initialization of first Raylib window
@@ -25,17 +21,14 @@ int main(void)
 	RenderTexture2D target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	RenderTexture2D brightTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	RenderTexture2D blurTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-	RenderTexture2D tracerTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight()); //<- tracer texture to keep track of previous frames
 
 	// Load post-processing shaders
 	//Shader postProcessingShader = LoadShader(0, TextFormat("resources/shaders/glsl%i.fs", 330)); //<- load shader
 	//Shader postProcessingShader = LoadShader(0, "resources/shaders/PPS_bloom.frag"); //<- load shader
-	Shader brightPassShader = LoadShader(0, "resources/shaders/PPS_bright.fs");
-	Shader blurPassShader = LoadShader(0, "resources/shaders/PPS_blur.fs");
-	Shader combinePassShader = LoadShader(0, "resources/shaders/PPS_combine.fs");
-	//Shader bloomShader = LoadShader(0, "resources/shaders/bloom.fs");
+	Shader brightPassShader = LoadShader(0, "resources/shaders/PPS_bright.frag");
+	Shader blurPassShader = LoadShader(0, "resources/shaders/PPS_blur.frag");
+	Shader combinePassShader = LoadShader(0, "resources/shaders/PPS_combine.frag");
 
-	float decay = 1.0f;
 
 	while (!WindowShouldClose())
 	{
@@ -57,10 +50,6 @@ int main(void)
 			body->gravityScale = 20.0f;
 			ApplyForce(body, (Vector2) { GetRandomFloatValue(-200, 200), GetRandomFloatValue(-200, 200) }, FM_VELOCITY);
 			TraceLog(LOG_INFO, "Created body at position (%.2f, %.2f)", position.x, position.y);
-			body->lifespan = LIFESPAN;
-			body->tracerlifespan = TRACERLIFESPAN;
-			body->alpha = 1.0f; // start off at full opacity
-			
 
 			// Assign random bright colors
 			float hue = GetRandomFloatValue(0, 10);
@@ -74,7 +63,6 @@ int main(void)
 		while (body)
 		{
 			//ApplyForce(body, CreateVector2(0, 9.8f), FM_FORCE); // try values other than 9.8f (gravity)
-			UpdateBody(body, dt);
 			body = body->next;
 		}
 
@@ -89,11 +77,6 @@ int main(void)
 		}
 		TraceLog(LOG_INFO, "Number of bodies drawn: %d", bodyCount);
 
-		//------------------------------------------------------------------------------------------------------------------------------
-
-		BeginDrawing();
-		ClearBackground(BLACK);
-
 		// begin rendering to texture
 		BeginTextureMode(target);
 		ClearBackground(BLACK);
@@ -103,85 +86,71 @@ int main(void)
 		while (body)
 		{
 
-			DrawCircle((int)body->position.x, (int)body->position.y, body->mass, body->color, body->alpha);
+			DrawCircle((int)body->position.x, (int)body->position.y, body->mass, body->color);
 			body = body->next;
 		}
 
 		// end rendering to texture
 		EndTextureMode();
 
-		//------------------------------------------------------------------------------------------------------------------------------
-
-		// POST-PROCESSING
-
 		//bright pass
 		BeginTextureMode(brightTexture);
 		BeginShaderMode(brightPassShader);
-		float threshold = 0.5f;
+		float threshold = 0.2f;
 		SetShaderValue(brightPassShader, GetShaderLocation(brightPassShader, "threshold"), &threshold, SHADER_UNIFORM_FLOAT);
 		DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2) { 0, 0 }, WHITE);
 		EndShaderMode();
 		EndTextureMode();
 
-		// Blur Pass (horizontal and vertical)
-		for (int i = 0; i < 2; i++)
-		{
-			RenderTexture2D src = (i % 2 == 0) ? brightTexture : blurTexture;
-			RenderTexture2D dst = (i % 2 == 0) ? blurTexture : brightTexture;
-
-			Vector2 blurDirection = (i % 2 == 0) ? (Vector2) { 2.0f, 0.0f } : (Vector2) { 0.0f, 2.0f };
-
-			BeginTextureMode(dst);
-			BeginShaderMode(blurPassShader);
-			SetShaderValue(blurPassShader, GetShaderLocation(blurPassShader, "blurDirection"), &blurDirection, SHADER_UNIFORM_VEC2);
-			DrawTextureRec(src.texture, (Rectangle) { 0, 0, src.texture.width, -src.texture.height }, (Vector2) { 0, 0 }, WHITE);
-			EndShaderMode();
-			EndTextureMode();
-		}
-
-		decay *= DECAY_RATE;
-
-		// draw tracers (trail effect)
-		BeginTextureMode(tracerTexture);
-		ClearBackground(BLACK);
-
-		body = ncBodies;
-		ncBody* nextBody = NULL;
-		while (body != NULL) {
-			nextBody = body->next;
-			float alphaDecay = body->tracerlifespan / TRACERLIFESPAN;
-			DrawCircle((int)body->position.x, (int)body->position.y, body->mass, Fade(body->color, alphaDecay));
-
-			body->tracerlifespan -= dt;
-			if (body->tracerlifespan <= 0) {
-				DestroyBody(body);
-			}
-
-			body = nextBody;
-		}
-		EndTextureMode();
-
-		// combine pass
-		BeginTextureMode(target);
-		BeginShaderMode(combinePassShader);
-		SetShaderValueTexture(combinePassShader, GetShaderLocation(combinePassShader, "originalTexture"), target.texture);
-		SetShaderValueTexture(combinePassShader, GetShaderLocation(combinePassShader, "blurredTexture"), blurTexture.texture);
-		SetShaderValueTexture(combinePassShader, GetShaderLocation(combinePassShader, "tracerTexture"), tracerTexture.texture);
-		float intensity = 1.5f;
-		SetShaderValue(combinePassShader, GetShaderLocation(combinePassShader, "intensity"), &intensity, SHADER_UNIFORM_FLOAT);
-		DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2) { 0, 0 }, WHITE);
+		//blur pass (horizontal)
+		BeginTextureMode(blurTexture);
+		BeginShaderMode(blurPassShader);
+		Vector2 horizontal = (Vector2){ 2.0f, 0.0f }; //<- horizontal blur
+		SetShaderValue(blurPassShader, GetShaderLocation(blurPassShader, "blurDirection"), &horizontal, SHADER_UNIFORM_VEC2);
+		DrawTextureRec(brightTexture.texture, (Rectangle) { 0, 0, (float)brightTexture.texture.width, (float)-brightTexture.texture.height }, (Vector2) { 0, 0 }, WHITE);
 		EndShaderMode();
 		EndTextureMode();
 
-		// Draw final output
+		// blur pass (vertical)
+		BeginTextureMode(target);
+		BeginShaderMode(blurPassShader);
+		Vector2 vertical = { 0.0f, 2.0f };
+		SetShaderValue(blurPassShader, GetShaderLocation(blurPassShader, "blurDirection"), &vertical, SHADER_UNIFORM_VEC2);
+		DrawTextureRec(blurTexture.texture, (Rectangle) { 0, 0, (float)blurTexture.texture.width, (float)-blurTexture.texture.height }, (Vector2) { 0, 0 }, WHITE);
+		EndShaderMode();
+		EndTextureMode();
+
+		// combine pass
+		BeginShaderMode(combinePassShader);
+		SetShaderValueTexture(combinePassShader, GetShaderLocation(combinePassShader, "originalTexture"), target.texture);
+		SetShaderValueTexture(combinePassShader, GetShaderLocation(combinePassShader, "blurredTexture"), blurTexture.texture);
+		float intensity = 1.0f;
+		SetShaderValue(combinePassShader, GetShaderLocation(combinePassShader, "intensity"), &intensity, SHADER_UNIFORM_FLOAT);
+		DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2) { 0, 0 }, WHITE);
+		EndShaderMode();
+
+		// set shader uniform
+		/*float screenWidth = (float)GetScreenWidth();
+		float screenHeight = (float)GetScreenHeight();
+		float threshold = 0.5f; 
+		float intensity = 1.0f; 
+
+		SetShaderValue(postProcessingShader, GetShaderLocation(postProcessingShader, "screenWidth"), &screenWidth, SHADER_UNIFORM_FLOAT);
+		SetShaderValue(postProcessingShader, GetShaderLocation(postProcessingShader, "screenHeight"), &screenHeight, SHADER_UNIFORM_FLOAT);
+		SetShaderValue(postProcessingShader, GetShaderLocation(postProcessingShader, "threshold"), &threshold, SHADER_UNIFORM_FLOAT);
+		SetShaderValue(postProcessingShader, GetShaderLocation(postProcessingShader, "intensity"), &intensity, SHADER_UNIFORM_FLOAT);*/
+
+		TraceLog(LOG_INFO, "Shader uniform values - Threshold: %.2f, Intensity: %.2f", threshold, intensity);
+
+		// draw render texture
 		DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2) { 0, 0 }, WHITE);
 
-		// Reset decay rate after each frame
-		decay = 1.0f;
+		// end shader mode
+		EndShaderMode();
 
-		// RENDER FINAL OUTPUT
-		DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2) { 0, 0 }, WHITE);
-
+		// render
+		BeginDrawing();
+		ClearBackground(BLACK);
 
 		// stats (HUD)
 		DrawText(TextFormat("FPS: %.2f (%.2fms)", fps, 1000 / fps), 10, 10, 20, LIME); //<- frames per second
@@ -203,7 +172,7 @@ int main(void)
 	UnloadRenderTexture(target);
 	UnloadRenderTexture(brightTexture);
 	UnloadRenderTexture(blurTexture);
-	UnloadRenderTexture(tracerTexture);
+
 
 	CloseWindow();
 
@@ -214,7 +183,7 @@ int main(void)
 //BeginDrawing
 //BeginShaderMode
 //Set shader uniforms
-//Draw scene
+//Draw your scene
 //EndShaderMode
 //EndDrawing
 

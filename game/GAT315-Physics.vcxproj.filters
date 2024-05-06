@@ -7,6 +7,9 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{E9C7FDCE-D52A-8D73-7EB0-C5296AF258F6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{25980835-491e-44ca-8a71-1f8feb67c882}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.c">
@@ -21,17 +24,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="..\resources\shaders\PPS_bloom.frag">
-      <Filter>Source Files</Filter>
+    <None Include="..\resources\shaders\PPS_bloom.fs">
+      <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="..\resources\shaders\PPS_bright.frag">
-      <Filter>Source Files</Filter>
+    <None Include="..\resources\shaders\PPS_blur.fs">
+      <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="..\resources\shaders\PPS_blur.frag">
-      <Filter>Source Files</Filter>
+    <None Include="..\resources\shaders\PPS_bright.fs">
+      <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="..\resources\shaders\PPS_combine.frag">
-      <Filter>Source Files</Filter>
+    <None Include="..\resources\shaders\bloom.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="..\resources\shaders\PPS_combine.fs">
+      <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

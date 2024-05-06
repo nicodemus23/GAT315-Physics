@@ -276,12 +276,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\resources\shaders\PPS_bloom.frag">
+    <None Include="..\resources\shaders\bloom.fs" />
+    <None Include="..\resources\shaders\PPS_bloom.fs">
       <FileType>Document</FileType>
     </None>
-    <None Include="..\resources\shaders\PPS_blur.frag" />
-    <None Include="..\resources\shaders\PPS_bright.frag" />
-    <None Include="..\resources\shaders\PPS_combine.frag" />
+    <None Include="..\resources\shaders\PPS_blur.fs" />
+    <None Include="..\resources\shaders\PPS_bright.fs" />
+    <None Include="..\resources\shaders\PPS_combine.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

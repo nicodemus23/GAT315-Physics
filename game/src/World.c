@@ -8,6 +8,7 @@
 ncBody* ncBodies = NULL;
 int ncBodyCount = 0;
 Vector2 ncGravity = { 0, 9.8f };
+float LIFESPAN = 5.0f;
 
 ncBody* CreateBody() // allocates memory for a new body, initializes its properties and adds it to the linked list
 {
@@ -27,6 +28,19 @@ ncBody* CreateBody() // allocates memory for a new body, initializes its propert
 
     return body;
 }
+
+void UpdateBody(ncBody* body, float dt)
+{
+	body->lifespan -= dt;
+	body->alpha = body->lifespan / LIFESPAN; // fade out body over time
+
+    // shrink over time
+    float shrinkRate = 0.9f;
+	body->mass *= shrinkRate;
+
+	Step(body, dt); //<- updates body's position and velocity based on its force and a given timestep
+}
+
 
 void DestroyBody(ncBody* body) // removes body from the linked list and frees its memory
 {
