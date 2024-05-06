@@ -34,6 +34,7 @@ typedef struct ncBody
 
 	struct ncBody* next;
 	struct ncBody* prev;
+	Color color; // color of the body
 
 } ncBody;
 

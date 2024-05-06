@@ -21,6 +21,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="..\resources\shaders\PPS_bloom.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\PPS_bright.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\PPS_blur.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\resources\shaders\PPS_combine.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\body.h">
