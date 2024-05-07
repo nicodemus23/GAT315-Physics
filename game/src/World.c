@@ -8,7 +8,7 @@
 ncBody* ncBodies = NULL;
 int ncBodyCount = 0;
 Vector2 ncGravity = { 0, 9.8f }; //<- gravity vector
-float LIFESPAN = 1.3f;
+float LIFESPAN = 1.0f;
 //float MAX_BODIES = 100000;
 
 ncBody* CreateBody() // allocates memory for a new body, initializes its properties and adds it to the linked list

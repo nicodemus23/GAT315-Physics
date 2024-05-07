@@ -18,3 +18,4 @@ void main()
         fragColor += texture(texture0, fragTexCoord - texOffset * float(i)) * weights[i];
     }
 }
+//The shader is a simple 5-tap blur shader that blurs the input texture in the direction specified by the blurDirection uniform.The weights array contains the weights for each tap, and the texOffset variable calculates the texture offset based on the blur direction and texture size.The shader then samples the input texture at the current texel and the neighboring texels in both directions, applying the weights to each sample to create the final blurred output.

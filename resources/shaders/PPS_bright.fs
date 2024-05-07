@@ -11,3 +11,4 @@ void main()
     float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722)); // Calculate brightness
     fragColor = color * max(brightness - threshold, 0.0);
 }
+//The shader is pretty simple.It takes a texture as input and calculates the brightness of each pixel in the texture.If the brightness is greater than the threshold, the pixel is kept; otherwise, it is discarded.
