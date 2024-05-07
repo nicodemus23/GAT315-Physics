@@ -21,6 +21,9 @@
     <ClCompile Include="src\Body.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Force.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\integrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\force.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

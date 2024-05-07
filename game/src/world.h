@@ -10,6 +10,7 @@ extern ncBody* ncBodies; //<- points to first body in linked list // Declare bod
 extern int ncBodyCount; //<- count of bodies in the world // Declare bodyCount as an integer // says it's externally defined
 extern Vector2 ncGravity; //<- gravity force to be applied to all bodies // Declare gravity as a Vector2 // says it's externally defined
 extern float LIFESPAN; //<- lifespan of a body // Declare LIFESPAN as a float // says it's externally defined
+extern float MAX_BODIES; //<- maximum number of bodies allowed // Declare MAX_BODIES as a float // says it's externally defined
 
 // function prototypes
 ncBody* CreateBody(); // creates a new body and adds it ot the linked list // Declare CreateBody function that returns a Body pointer

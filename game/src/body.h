@@ -32,7 +32,7 @@ typedef struct ncBody
 	float gravityScale; /// typically 1 but can be adjusted here
 	float damping; // damping factor (0 = no damping, 1 = total damping)
 	float lifespan; // how long the body will exist (0 = infinite)
-	float tracerlifespan; // how long the tracer will exist (0 = infinite)
+	//float tracerlifespan; // how long the tracer will exist (0 = infinite)
 	float alpha; // transparency of the body
 
 	struct ncBody* next;
