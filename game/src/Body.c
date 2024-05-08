@@ -3,7 +3,7 @@
 #include "world.h"
 #include "integrator.h"
 
-void Step(ncBody* body, float timestep)
+void Step(ncBody* body, float timestep) //<- updates body's position and velocity based on its force and a given timestep
 {
 	body->force = Vector2Add(body->force, Vector2Scale(Vector2Scale(ncGravity, body->gravityScale), body->mass)); // F = m * g
 	body->acceleration = Vector2Scale(body->force, body->inverseMass); // a = F / m

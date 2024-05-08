@@ -5,6 +5,7 @@
 #include "integrator.h"
 #include "raymath.h"
 #include "force.h"
+#include "editor.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -23,7 +24,7 @@ int main(void)
 	int screenHeight = GetScreenHeight();
 
 	// initialize world
-	Vector2 ncGravity = (Vector2){ 0, -9.8f };
+	Vector2 ncGravity = (Vector2){ 0, -1 }; //<- gravity vector (0, -9.8f) set to 0, 0 temporarily for exercise
 
 	// create render texture to store rendered scene before applying post-processing effects
 	RenderTexture2D target = LoadRenderTexture(screenWidth, screenHeight);
@@ -43,13 +44,16 @@ int main(void)
 	// set bloom shader uniforms
 	Vector2 size = { screenWidth, screenHeight };
 	SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "size"), &size, SHADER_UNIFORM_VEC2);
-	float samples = 15.0f;
-	float quality = 8.5f;
+	float samples = 50.0f;
+	float quality = 20.5f;
 	SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "samples"), &samples, SHADER_UNIFORM_FLOAT);
 	SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "quality"), &quality, SHADER_UNIFORM_FLOAT);
 
-	float decay = 1.0f;
+	float decay = 0.0f;
 	bool firstFrame = true;
+
+	float sphereRadius = 100.0f;
+	float initialSpeed = 200.0f;
 
     while (!WindowShouldClose())
     {
@@ -65,18 +69,36 @@ int main(void)
                 ncBody* body = CreateBody();
                 if (body != NULL)
                 {
-                    body->position = position;
-                    body->mass = GetRandomFloatValue(1, 20);
+                    // calculate random position on surface of a sphere
+					float theta = GetRandomFloatValue(0, 2 * PI);
+					float phi = GetRandomFloatValue(0, PI);
+					float x = sphereRadius * sinf(phi) * cosf(theta);
+					float y = sphereRadius * sinf(phi) * sinf(theta);
+					float z = sphereRadius * cosf(phi);
+
+                    //body->position = position;
+					body->position = Vector2Add(position, (Vector2) { x, y });
+                    //body->mass = GetRandomFloatValue(ncEditorData.MassMinValue, ncEditorData.MassMaxValue);
+                    body->mass = GetRandomFloatValue(1,10);
                     body->inverseMass = 1.0f / body->mass;
                     body->type = BT_DYNAMIC;
                     body->damping = 2.5f;
-                    body->gravityScale = 20.0f;
+                    body->gravityScale = 0.0f;
+
+                    // caluclate direction from center to body position
+					Vector2 direction = Vector2Subtract(body->position, position);
+					direction = Vector2Normalize(direction);
+
+                    // apply initial force in directon of sphere surface
+					ApplyForce(body, Vector2Scale(direction, initialSpeed), FM_VELOCITY);
+
+
                     ApplyForce(body, (Vector2) { GetRandomFloatValue(-200, 200), GetRandomFloatValue(-200, 200) }, FM_VELOCITY);
                     body->lifespan = LIFESPAN;
                     body->alpha = 1.0f;
                     float hue = GetRandomFloatValue(0, 10);
-                    float saturation = 0.5f;
-                    float brightness = 1.0f;
+                    float saturation = 1.0f;
+                    float brightness = 300.0f;
                     body->color = ColorFromHSV(hue * 360.0f, saturation, brightness);
                 }
             }
@@ -87,25 +109,29 @@ int main(void)
         {
             ncBody* nextBody = body->next;
             UpdateBody(body, dt);
-            if (body->lifespan == 0.0f && body->alpha == 0.0f)
+			if (body->lifespan == 0.0f && body->alpha == 0.0f) //<- if body has no lifespan and no alpha
             {
                 DestroyBody(body);
             }
             body = nextBody;
         }
 
+		// Apply forces of gravitation between bodies
+        float gravitationStrength = 10.0f;
+		ApplyGravitation(ncBodies, gravitationStrength);
+
         // Draw to tracer texture
-        BeginTextureMode(tracerTexture);
-        BeginBlendMode(BLEND_ALPHA);
-        DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, decay));
+  //      BeginTextureMode(tracerTexture);
+		//BeginBlendMode(BLEND_ALPHA); //<- blend mode to alpha blend the tracers together over time (BLEND_ALPHA) 
+  //      DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, decay));
 
         body = ncBodies;
         while (body)
         {
             float tracerAlpha = body->alpha;
-            Color colorWithAlpha = Fade(body->color, tracerAlpha);
+			Color colorWithAlpha = Fade(body->color, tracerAlpha); //<- fade the color of the body based on its alpha
             DrawCircle((int)body->position.x, (int)body->position.y, body->mass, colorWithAlpha);
-            body = body->next;
+			body = body->next; //<- move to the next body
         }
         EndBlendMode();
         EndTextureMode();
@@ -134,6 +160,8 @@ int main(void)
 
         // Overlay tracers
         DrawTextureRec(tracerTexture.texture, (Rectangle) { 0, 0, (float)tracerTexture.texture.width, -(float)tracerTexture.texture.height }, (Vector2) { 0, 0 }, WHITE);
+
+        //DrawEditor();
 
         // HUD
         DrawText(TextFormat("FPS: %.2f (%.2fms)", fps, 1000 / fps), 10, 10, 20, LIME);
