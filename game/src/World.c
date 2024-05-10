@@ -14,7 +14,7 @@ float LIFESPAN = 3.0f;
 ncBody* CreateBody() // allocates memory for a new body, initializes its properties and adds it to the linked list
 {
    
-    ncBody* body = (ncBody*)malloc(sizeof(ncBody));
+	ncBody* body = (ncBody*)malloc(sizeof(ncBody)); //<- allocate memory for a new body
     assert(body != NULL);
 
 	memset(body, 0, sizeof(ncBody)); //<- sets all bytes of body to 0
@@ -40,22 +40,21 @@ void UpdateBody(ncBody* body, float dt)
     if (body->lifespan > 0)
     {
         body->lifespan -= dt;
-        body->alpha = body->lifespan / LIFESPAN; // Ratio of remaining lifespan to max lifespan
-        body->lifespan = fmaxf(body->lifespan, 0.0f); // Clamp lifespan to 0 or higher
+		body->alpha = fmaxf(body->lifespan / LIFESPAN, 0.0f); //<- set alpha to 0 if lifespan is less than 0
+		body->lifespan = fmaxf(body->lifespan, 0.0f); //<- set lifespan to 0 if it is less than 0
     }
     else
     {
-		body->lifespan = 0.0f;
-		body->alpha = 0.0f;
+        body->lifespan = 0.0f; 
+        body->alpha = 0.0f;
     }
 
-    // shrink over time
+    // Shrink over time
     float shrinkRate = 0.95f;
-	body->mass *= shrinkRate;
+    body->mass *= shrinkRate;
 
     printf("Body at (%.2f, %.2f) updated: lifespan = %.2f, alpha = %.2f\n", body->position.x, body->position.y, body->lifespan, body->alpha);
-
-	Step(body, dt); //<- updates body's position and velocity based on its force and a given timestep
+    Step(body, dt);
 }
 
 

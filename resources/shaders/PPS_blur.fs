@@ -1,4 +1,5 @@
 #version 330
+#include "/utils.glsl"
 
 in vec2 fragTexCoord;
 uniform sampler2D texture0;

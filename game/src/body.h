@@ -35,6 +35,12 @@ typedef struct ncBody
 	//float tracerlifespan; // how long the tracer will exist (0 = infinite)
 	float alpha; // transparency of the body
 
+	// Star vars
+	float outerRadius; // outer radius of the star
+	float innerRadius; // inner radius of the star
+	int numPoints; // number of points in the star
+	float randomTwinkleOffset; // random offset for the star
+
 	struct ncBody* next;
 	struct ncBody* prev;
 	Color color; // color of the body

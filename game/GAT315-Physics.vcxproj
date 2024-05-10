@@ -272,6 +272,7 @@
     <ClCompile Include="src\Force.c" />
     <ClCompile Include="src\Main.c" />
     <ClCompile Include="src\render.c" />
+    <ClCompile Include="src\Shapes.c" />
     <ClCompile Include="src\World.c" />
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +282,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\resources\shaders\bloom.fs" />
+    <None Include="..\resources\shaders\lens_flare.fs" />
     <None Include="..\resources\shaders\PPS_bloom.fs">
       <FileType>Document</FileType>
     </None>
@@ -297,6 +299,7 @@
     <ClInclude Include="src\integrator.h" />
     <ClInclude Include="src\mathf.h" />
     <ClInclude Include="src\render.h" />
+    <ClInclude Include="src\shapes.h" />
     <ClInclude Include="src\world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
