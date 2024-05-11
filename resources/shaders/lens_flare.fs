@@ -9,8 +9,8 @@ uniform vec2 resolution;
 uniform vec2 lightPositions[10]; // Array of light positions
 uniform int numLights; // Number of active lights
 
-const int NUM_SAMPLES = 16;
-const float DISPERSION = 2.5;
+const int NUM_SAMPLES = 24;
+const float DISPERSION = 1.0f;
 const float INTENSITY = 3.5;
 
 void main()

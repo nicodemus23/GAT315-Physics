@@ -45,8 +45,8 @@ void UpdateBody(ncBody* body, float dt)
     }
     else
     {
-        body->lifespan = 0.0f; 
-        body->alpha = 0.0f;
+        body->lifespan = 3.0f; 
+        body->alpha = 1.0f;
     }
 
     // Shrink over time

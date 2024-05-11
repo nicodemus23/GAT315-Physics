@@ -293,6 +293,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\Dropbox\PC\Downloads\editor 1.h" />
+    <ClInclude Include="..\raygui\src\raygui.h" />
     <ClInclude Include="src\body.h" />
     <ClInclude Include="src\editor.h" />
     <ClInclude Include="src\force.h" />

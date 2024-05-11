@@ -86,5 +86,8 @@
     <ClInclude Include="src\shapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\raygui\src\raygui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

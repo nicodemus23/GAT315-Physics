@@ -45,7 +45,7 @@ void DrawStar(Vector2 center, float outerRadius, float innerRadius, int numPoint
 	DrawTriangleFan(vertices, numPoints * 2, twinkledColor); 
 
 	// Apply a glowing effect at the center
-	float glowRadius = scaledInnerRadius * 30.8f;
+	float glowRadius = scaledInnerRadius * 35.8f;
 	Color glowColor = twinkledColor;
 	glowColor.a = (unsigned char)(twinkledColor.a * 0.5f); // Make the center glow slightly less opaque for a hot effect
 	DrawCircleGradient(center.x, center.y, glowRadius, glowColor, BLANK); // BLANK for transparent outside

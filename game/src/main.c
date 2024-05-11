@@ -7,14 +7,15 @@
 #include "force.h"
 #include "editor.h"
 #include "shapes.h"
+#include "C:\Users\Nic\Documents\Neumont\6_Spring 2024\GAT315\GAT315-Physics\raygui\src\raygui.h"
 
 #include <stdlib.h>
 #include <assert.h>
 
 #define TRACERLIFESPAN 1.0f
-#define DECAY_RATE 10.0f
+#define DECAY_RATE 1.0f
 #define MAX_LIGHTS 100
-#define BRIGHTNESS_THRESHOLD 10000.0f //<- brightness threshold for considering a body a light source
+#define BRIGHTNESS_THRESHOLD 5000.0f //<- brightness threshold for considering a body a light source
 
 
 int main(void)
@@ -40,18 +41,18 @@ int main(void)
 
 
 	// Load post-processing and bloom shaders
-	/*Shader brightPassShader = LoadShader(0, "resources/shaders/PPS_bright.fs");
-	Shader blurPassShader = LoadShader(0, "resources/shaders/PPS_blur.fs");
-	Shader combinePassShader = LoadShader(0, "resources/shaders/PPS_combine.fs");*/
-	Shader bloomShader = LoadShader("resources/shaders/base.vs", "resources/shaders/bloom.fs");
+//	Shader brightPassShader = LoadShader(0, "resources/shaders/PPS_bright.fs");
+	//Shader blurPassShader = LoadShader(0, "resources/shaders/PPS_blur.fs");
+	//Shader combinePassShader = LoadShader(0, "resources/shaders/PPS_combine.fs");*/
+	Shader bloomShader = LoadShader("resources/shaders/base.vs", "resources/shaders/PPS_bloom.fs");
 	Shader lensFlareShader = LoadShader("resources/shaders/base.vs", "resources/shaders/lens_flare.fs");
 
 	// set bloom shader uniforms
-	SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "size"), &size, SHADER_UNIFORM_VEC2);
-	float samples = 100.0f;
-	float quality = 50.5f;
-	SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "samples"), &samples, SHADER_UNIFORM_FLOAT);
-	SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "quality"), &quality, SHADER_UNIFORM_FLOAT);
+	//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "size"), &size, SHADER_UNIFORM_VEC2);
+	//float samples = 1.0f;
+	//float quality = 200.5f;
+	//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "samples"), &samples, SHADER_UNIFORM_FLOAT);
+	//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "quality"), &quality, SHADER_UNIFORM_FLOAT);
 
 	// set lens flare shader uniforms
 	SetShaderValue(lensFlareShader, GetShaderLocation(lensFlareShader, "resolution"), &size, SHADER_UNIFORM_VEC2);
@@ -62,7 +63,7 @@ int main(void)
 	bool firstFrame = true;
 
 	float sphereRadius = 3.0f;
-	float initialSpeed = 200.0f;
+	float initialSpeed = 2000.0f;
 
 	float scaleFactor = 5.0f;
 
@@ -77,11 +78,11 @@ int main(void)
 		float fps = (float)GetFPS();
 		Vector2 position = GetMousePosition();
 
-		numLights = 0; // reset number of lights each frame
+	//	numLights = 0; // reset number of lights each frame
 
 		if (IsMouseButtonDown(0))
 		{
-			int numBodies = 50;
+			int numBodies = 80;
 			for (int i = 0; i < numBodies; i++)
 			{
 				ncBody* body = CreateBody();
@@ -100,29 +101,16 @@ int main(void)
 					body->mass = GetRandomFloatValue(1, 10);
 					body->inverseMass = 1.0f / body->mass;
 					body->type = BT_DYNAMIC;
-					body->damping = 0.0f;
+					body->damping = 0.2f;
 					body->gravityScale = 1.0f;
 
 					// Star var
 					//body->color = ColorFromHSV(GetRandomValue(0, 60), 0.8f, GetRandomValue(200, 255)); //<- random color
-					body->outerRadius = GetRandomValue(3, 10);
+					body->outerRadius = GetRandomValue(3, 8);
 					body->innerRadius = body->outerRadius * 0.9f;
-					body->numPoints = GetRandomValue(3, 5);
+					body->numPoints = GetRandomValue(4, 8);
 					body->color = GetStarColor(GetRandomValue(3000, 25000));
 					body->randomTwinkleOffset = GetRandomFloatValue(0, 2 * PI); //<- random offset for twinkling effect per star
-				
-
-					// star colors
-					//int colorIndex = GetRandomValue(0, 4);
-					//switch (colorIndex)
-					//{
-					//	case 0: body->color = BLUE; break;
-					//	case 1: body->color = (Color){ 173, 216, 230, 255 }; break; // Light blue
-					//	case 2: body->color = YELLOW; break;
-					//	case 3: body->color = ORANGE; break;
-					//	case 4: body->color = RED; break;
-
-					//}
 
 					// caluclate direction from center to body position
 					Vector2 direction = Vector2Subtract(body->position, position);
@@ -173,18 +161,6 @@ int main(void)
 		}
 		EndTextureMode();
 
-	/*	while (body)
-		{
-			ncBody* nextBody = body->next;
-			UpdateBody(body, dt);
-			if (body->lifespan == 0.0f && body->alpha == 0.0f)
-			{
-				DestroyBody(body);
-			}
-
-			body = nextBody;
-		}*/
-
 		// Update light positions for lense flare
 		SetShaderValue(lensFlareShader, GetShaderLocation(lensFlareShader, "lightPositions"), lightPositions, SHADER_UNIFORM_VEC2, numLights);
 		SetShaderValue(lensFlareShader, GetShaderLocation(lensFlareShader, "numLights"), &numLights, SHADER_UNIFORM_INT);
@@ -192,19 +168,23 @@ int main(void)
 		//----------------------------------------------------------------------------------
 		// Draw to tracer texture
 		BeginTextureMode(tracerTexture);
+		//ClearBackground(BLACK, decay);
 		BeginBlendMode(BLEND_ALPHA); //<- blend mode to alpha blend the tracers together over time (BLEND_ALPHA) 
 		DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, 1.0f - decay)); 
+		//DrawTextureRec(tracerTexture.texture, (Rectangle) { 0, 0, (float)tracerTexture.texture.width, -(float)tracerTexture.texture.height }, (Vector2) { 0, 0 }, WHITE); //<- draw tracer texture
+
 
 
 		body = ncBodies;
 		while (body)
 		{
 			float tracerAlpha = body->alpha;
-			Color colorWithAlpha = Fade(body->color, tracerAlpha * 100.0f); //<- fade the color of the body based on its alpha (WHICH ISN'T FUCKING WORKING!!) 
+			Color colorWithAlpha = Fade(body->color, tracerAlpha + 10000.0f); //<- fade the color of the body based on its alpha (WHICH ISN'T FUCKING WORKING!!) 
 			//DrawCircle((int)body->position.x, (int)body->position.y, body->mass, colorWithAlpha);
 
-			Color dimmedColor = ApplyDimming(body->color, 100.f);
-			DrawStar(body->position, body->outerRadius, body->innerRadius, body->numPoints, dimmedColor, body->randomTwinkleOffset, scaleFactor);
+			Color dimmedColor = ApplyDimming(body->color, 5000.1f);
+			DrawStar(body->position, body->outerRadius, body->innerRadius, body->numPoints, colorWithAlpha, body->randomTwinkleOffset, scaleFactor);
+			
 
 
 			body = body->next; //<- move to the next body
@@ -217,11 +197,7 @@ int main(void)
 		// Draw bodies to target texture
 		BeginTextureMode(target);
 		ClearBackground(BLACK);
-		BeginBlendMode(BLEND_ADDITIVE);
-
-
-
-	
+		BeginBlendMode(BLEND_ALPHA);
 
 		body = ncBodies;
 		while (body)
@@ -242,7 +218,7 @@ int main(void)
 
 		
 		BeginShaderMode(bloomShader);
-		SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "size"), &(Vector2){ 1280, 720 }, SHADER_UNIFORM_VEC2);
+		//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "size"), &(Vector2){ 1280, 720 }, SHADER_UNIFORM_VEC2);
 		//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "samples"), &(float){ 10.0f }, SHADER_UNIFORM_FLOAT);
 		//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "quality"), &(float){ 4.0f }, SHADER_UNIFORM_FLOAT);
 		DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Vector2) { 0, 0 }, WHITE); //<- draw target texture
@@ -268,7 +244,6 @@ int main(void)
 		decay *= DECAY_RATE;
 		
 	}
-
 	UnloadShader(bloomShader);
 	UnloadRenderTexture(target);
 	UnloadRenderTexture(tracerTexture);
