@@ -30,10 +30,10 @@
     <ClCompile Include="src\editor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\Dropbox\PC\Downloads\Editor (1).c">
+    <ClCompile Include="src\Shapes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Shapes.c">
+    <ClCompile Include="src\editor (2).c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\raygui\src\raygui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUI_var.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

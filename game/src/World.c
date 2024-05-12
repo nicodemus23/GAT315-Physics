@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+//#include "GUI_var.h"
+
 
 // DEFINES EXTERNAL VARIABLES ncBodies and ncBodyCount declared in world.h
 ncBody* ncBodies = NULL;
@@ -10,12 +12,38 @@ int ncBodyCount = 0;
 Vector2 ncGravity = { 0, 9.8f }; //<- gravity vector
 float LIFESPAN = 3.0f;
 //float MAX_BODIES = 100000;
+float guiBodyMass = 1.0f;
+float guiBodyGravityScale = 1.0f;
+float guiBodyDamping = 0.2f;
+float guiBodyLifespan = 0.0f;
+float guiBodyAlpha = 1.0f;
+float guiBodyOuterRadius = 5.0f;
+float guiBodyInnerRadius = 4.5f;
+int guiBodyNumPoints = 5;
+Color guiBodyColor;
 
 ncBody* CreateBody() // allocates memory for a new body, initializes its properties and adds it to the linked list
 {
    
 	ncBody* body = (ncBody*)malloc(sizeof(ncBody)); //<- allocate memory for a new body
     assert(body != NULL);
+
+    body->type = BT_DYNAMIC;
+    body->position = Vector2Zero();
+    body->velocity = Vector2Zero();
+    body->force = Vector2Zero();
+    body->acceleration = Vector2Zero();
+    body->mass = guiBodyMass;
+    body->inverseMass = 1.0f / guiBodyMass;
+    body->gravityScale = guiBodyGravityScale;
+    body->damping = guiBodyDamping;
+    body->lifespan = guiBodyLifespan;
+    body->alpha = guiBodyAlpha;
+    body->outerRadius = guiBodyOuterRadius;
+    body->innerRadius = guiBodyInnerRadius;
+    body->numPoints = guiBodyNumPoints;
+    body->randomTwinkleOffset = GetRandomFloatValue(0, 2 * PI);
+    body->color = guiBodyColor;
 
 	memset(body, 0, sizeof(ncBody)); //<- sets all bytes of body to 0
 

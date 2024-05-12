@@ -2,6 +2,16 @@
 //#include "body.h"
 #include "raylib.h"
 
+extern float guiBodyMass;
+extern float guiBodyGravityScale;
+extern float guiBodyDamping;
+extern float guiBodyLifespan;
+extern float guiBodyAlpha;
+extern float guiBodyOuterRadius;
+extern float guiBodyInnerRadius;
+extern int guiBodyNumPoints;
+extern Color guiBodyColor;
+
 // forward declarations
 typedef struct ncBody ncBody; // Declare ncBody struct as a forward declaration 
 

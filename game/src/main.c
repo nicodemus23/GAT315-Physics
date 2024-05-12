@@ -1,3 +1,4 @@
+#pragma once
 #include "raylib.h"
 #include "body.h"
 #include "mathf.h"
@@ -7,7 +8,10 @@
 #include "force.h"
 #include "editor.h"
 #include "shapes.h"
+//#define RAYGUI_IMPLEMENTATION
+
 #include "C:\Users\Nic\Documents\Neumont\6_Spring 2024\GAT315\GAT315-Physics\raygui\src\raygui.h"
+//#include "GUI_var.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -17,7 +21,6 @@
 #define MAX_LIGHTS 100
 #define BRIGHTNESS_THRESHOLD 5000.0f //<- brightness threshold for considering a body a light source
 
-
 int main(void)
 {
 	// Initialization of first Raylib window
@@ -26,6 +29,7 @@ int main(void)
 
 	int screenWidth = GetScreenWidth();
 	int screenHeight = GetScreenHeight();
+	float ncScreenZoom;
 	Vector2 size = { screenWidth, screenHeight };
 
 	// initialize world
@@ -33,17 +37,11 @@ int main(void)
 
 	// create render texture to store rendered scene before applying post-processing effects
 	RenderTexture2D target = LoadRenderTexture(screenWidth, screenHeight);
-	//RenderTexture2D brightTexture = LoadRenderTexture(screenWidth, screenHeight);
-	//RenderTexture2D blurTexture = LoadRenderTexture(screenWidth, screenHeight);
+
 	RenderTexture2D tracerTexture = LoadRenderTexture(screenWidth, screenHeight); //<- tracer texture to keep track of previous frames
 	RenderTexture2D bloomTexture = LoadRenderTexture(screenWidth, screenHeight);
 
 
-
-	// Load post-processing and bloom shaders
-//	Shader brightPassShader = LoadShader(0, "resources/shaders/PPS_bright.fs");
-	//Shader blurPassShader = LoadShader(0, "resources/shaders/PPS_blur.fs");
-	//Shader combinePassShader = LoadShader(0, "resources/shaders/PPS_combine.fs");*/
 	Shader bloomShader = LoadShader("resources/shaders/base.vs", "resources/shaders/PPS_bloom.fs");
 	Shader lensFlareShader = LoadShader("resources/shaders/base.vs", "resources/shaders/lens_flare.fs");
 
@@ -67,16 +65,41 @@ int main(void)
 
 	float scaleFactor = 5.0f;
 
-	// for scaling stars on draw call:
-	//float scaleFactor = 5.0;
-	//float scaledOuterRadius = outerRadius / scaleFactor;
-	//float scaledInnerRadius = innerRadius / scaleFactor;
+	// GUI variables
+	/*float guiBodyMass = 1.0f;
+	float guiBodyGravityScale = 1.0f;
+	float guiBodyDamping = 0.2f;
+	float guiBodyLifespan = 0.0f;
+	float guiBodyAlpha = 1.0f;
+	float guiBodyOuterRadius = 5.0f;
+	float guiBodyInnerRadius = 4.5f;
+	int guiBodyNumPoints = 5;
+	Color guiBodyColor = WHITE;*/
 
 	while (!WindowShouldClose())
 	{
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
 		Vector2 position = GetMousePosition();
+		//ncScreenZoom += GetMouseWheelMove() * 0.2f;
+		//ncScreenZoom = Clamp(ncScreenZoom, 0.f, 10);
+
+		// Create a GUI window
+	//	Rectangle windowBounds = { 10, 60, 300, 400 };
+	////	GuiWindow(windowBounds, "Body Settings");
+
+	//	// Create the GUI controls
+	//	guiBodyMass = GuiSlider((Rectangle) { 20, 100, 280, 20 }, "Mass", TextFormat("%.1f", guiBodyMass), &guiBodyMass, 0.1f, 20.0f);
+	//	guiBodyGravityScale = GuiSlider((Rectangle) { 20, 130, 280, 20 }, "Gravity Scale", TextFormat("%.1f", guiBodyGravityScale), &guiBodyGravityScale, 0.0f, 5.0f);
+	//	guiBodyDamping = GuiSlider((Rectangle) { 20, 160, 280, 20 }, "Damping", TextFormat("%.2f", guiBodyDamping), &guiBodyDamping, 0.0f, 1.0f);
+	//	guiBodyLifespan = GuiSlider((Rectangle) { 20, 190, 280, 20 }, "Lifespan", TextFormat("%.1f", guiBodyLifespan), &guiBodyLifespan, 0.0f, 10.0f);
+	//	guiBodyAlpha = GuiSlider((Rectangle) { 20, 220, 280, 20 }, "Alpha", TextFormat("%.2f", guiBodyAlpha), &guiBodyAlpha, 0.0f, 1.0f);
+	//	guiBodyOuterRadius = GuiSlider((Rectangle) { 20, 250, 280, 20 }, "Outer Radius", TextFormat("%.1f", guiBodyOuterRadius), &guiBodyOuterRadius, 1.0f, 20.0f);
+	//	guiBodyInnerRadius = GuiSlider((Rectangle) { 20, 280, 280, 20 }, "Inner Radius", TextFormat("%.1f", guiBodyInnerRadius), &guiBodyInnerRadius, 0.5f, 19.5f);
+	//	guiBodyNumPoints = GuiSlider((Rectangle) { 20, 310, 280, 20 }, "Num Points", TextFormat("%d", guiBodyNumPoints), guiBodyNumPoints, 3, 10);
+	//	int pickedColor = GuiColorPicker((Rectangle) { 20, 340, 280, 20 }, "Color", &guiBodyColor);
+	//	guiBodyColor = GetColor(pickedColor);
+
 
 	//	numLights = 0; // reset number of lights each frame
 
@@ -88,6 +111,18 @@ int main(void)
 				ncBody* body = CreateBody();
 				if (body != NULL)
 				{
+					// Use GUI values to set body properties
+		/*			body->mass = guiBodyMass;
+					body->inverseMass = 1.0f / guiBodyMass;
+					body->damping = guiBodyDamping;
+					body->gravityScale = guiBodyGravityScale;
+					body->outerRadius = guiBodyOuterRadius;
+					body->innerRadius = guiBodyInnerRadius;
+					body->numPoints = guiBodyNumPoints;
+					body->color = guiBodyColor;
+					body->lifespan = guiBodyLifespan;
+					body->alpha = guiBodyAlpha;*/
+
 					// calculate random position on surface of a sphere
 					float theta = GetRandomFloatValue(0, 2 * PI);
 					float phi = GetRandomFloatValue(0, PI);
@@ -97,12 +132,12 @@ int main(void)
 
 					//body->position = position;
 					body->position = Vector2Add(position, (Vector2) { x, y });
-					//body->mass = GetRandomFloatValue(ncEditorData.MassMinValue, ncEditorData.MassMaxValue);
-					body->mass = GetRandomFloatValue(1, 10);
+					body->mass = GetRandomFloatValue(ncEditorData.MassMinValue, ncEditorData.MassMaxValue);
+					//body->mass = GetRandomFloatValue(1, 10);
 					body->inverseMass = 1.0f / body->mass;
 					body->type = BT_DYNAMIC;
-					body->damping = 0.2f;
-					body->gravityScale = 1.0f;
+					body->damping = 0;// 0.2f;
+					body->gravityScale = 0.0f;
 
 					// Star var
 					//body->color = ColorFromHSV(GetRandomValue(0, 60), 0.8f, GetRandomValue(200, 255)); //<- random color
@@ -123,23 +158,21 @@ int main(void)
 					ApplyForce(body, (Vector2) { GetRandomFloatValue(-200, 200), GetRandomFloatValue(-200, 200) }, FM_VELOCITY);
 					body->lifespan = LIFESPAN;
 					body->alpha = 1.0f; 
-					//float hue = GetRandomFloatValue(0, 100);
-					//float saturation = 0.5f;
-					//float brightness = 3000.0f;
-					//body->color = ColorFromHSV(hue, saturation, brightness); // <- random color based on hue, saturation, and brightness values 
-
+					
 				}
 			}
 		}
 		//BeginTextureMode(target);
 		//ClearBackground(BLACK);
 
+		
+
 		// Update bodies and draw to target texture
 		ncBody* body = ncBodies;
 		while (body)
 		{
 			float gravitationStrength = 1.0f;
-			//ApplyGravitation(ncBodies, gravitationStrength);
+			//ApplyGravitation(ncBodies, ncEditorData.GravitationValue);
 
 			ncBody* nextBody = body->next;
 			UpdateBody(body, dt);
@@ -159,7 +192,7 @@ int main(void)
 			}
 			body = nextBody;
 		}
-		EndTextureMode();
+		//EndTextureMode();
 
 		// Update light positions for lense flare
 		SetShaderValue(lensFlareShader, GetShaderLocation(lensFlareShader, "lightPositions"), lightPositions, SHADER_UNIFORM_VEC2, numLights);
@@ -233,7 +266,8 @@ int main(void)
 		DrawTextureRec(tracerTexture.texture, (Rectangle) { 0, 0, (float)tracerTexture.texture.width, -(float)tracerTexture.texture.height }, (Vector2) { 0, 0 }, WHITE); //<- draw tracer texture
 
 
-		//DrawEditor();
+		DrawEditor();
+		UpdateEditor(position);
 
 		// HUD
 		DrawText(TextFormat("FPS: %.2f (%.2fms)", fps, 1000 / fps), 10, 10, 20, LIME);
