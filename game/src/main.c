@@ -135,9 +135,22 @@ int main(void)
 					body->mass = GetRandomFloatValue(ncEditorData.MassMinValue, ncEditorData.MassMaxValue);
 					//body->mass = GetRandomFloatValue(1, 10);
 					body->inverseMass = 1.0f / body->mass;
-					body->type = BT_DYNAMIC;
-					body->damping = 0;// 0.2f;
-					body->gravityScale = 0.0f;
+					//body->type = BT_DYNAMIC;
+						 // Set body type based on the dropdown selection
+					switch (ncEditorData.BodyType)
+					{
+					case 0:
+						body->type = BT_DYNAMIC;
+						break;
+					case 1:
+						body->type = BT_STATIC;
+						break;
+					case 2:
+						body->type = BT_KINEMATIC;
+						break;
+					}
+					body->damping = ncEditorData.BodyDamping;// 0.2f;
+					body->gravityScale = ncEditorData.BodyGravityScale;
 
 					// Star var
 					//body->color = ColorFromHSV(GetRandomValue(0, 60), 0.8f, GetRandomValue(200, 255)); //<- random color

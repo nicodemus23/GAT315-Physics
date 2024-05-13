@@ -22,6 +22,10 @@ void InitEditor()
 	ncEditorData.GravitationValue = 2.0f;
 	ncEditorData.MassMinValue = 0.1f;
 	ncEditorData.MassMaxValue = 1.0f;
+	ncEditorData.BodyType = 0;
+ncEditorData.BodyGravityScale = 1.0f;
+ncEditorData.BodyDamping = 0.2f;
+
 
 	editorRect = (Rectangle){ anchor01.x + 0, anchor01.y + 0, 296, 576 };
 }
@@ -43,5 +47,15 @@ void DrawEditor()
 		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 64, 120, 16 }, "Mass Min", NULL, & ncEditorData.MassMinValue, 0, 10);
 		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 112, 120, 16 }, "Mass Max", NULL, & ncEditorData.MassMaxValue, 0, 10);
 		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 160, 120, 16 }, "Gravitation", NULL, & ncEditorData.GravitationValue, 0, 100);
+	
+		// Body Type Dropdown
+		const char* bodyTypes[] = { "Dynamic", "Static", "Kinematic" };
+		ncEditorData.BodyType = GuiComboBox((Rectangle) { anchor01.x + 104, anchor01.y + 208, 120, 20 }, "Body Type", bodyTypes, 3, ncEditorData.BodyType);
+
+		// Body Gravity Scale Slider
+		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 256, 120, 16 }, "Body Gravity Scale", NULL, & ncEditorData.BodyGravityScale, 0, 5);
+
+		// Body Damping Slider
+		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 304, 120, 16 }, "Body Damping", NULL, & ncEditorData.BodyDamping, 0, 1);
 	}
 }

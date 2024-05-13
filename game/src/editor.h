@@ -6,6 +6,9 @@ typedef struct ncEditorData
 	float MassMinValue;
 	float MassMaxValue;
 	float GravitationValue;
+	int BodyType;
+	float BodyGravityScale;
+	float BodyDamping;
 
 } ncEditorData_t;
 
