@@ -2,14 +2,14 @@
 //#include "body.h"
 #include "raylib.h"
 
-extern float guiBodyMass;
-extern float guiBodyGravityScale;
-extern float guiBodyDamping;
-extern float guiBodyLifespan;
-extern float guiBodyAlpha;
-extern float guiBodyOuterRadius;
-extern float guiBodyInnerRadius;
-extern int guiBodyNumPoints;
+//extern float guiBodyMass;
+//extern float guiBodyGravityScale;
+//extern float guiBodyDamping;
+//extern float guiBodyLifespan;
+//extern float guiBodyAlpha;
+//extern float guiBodyOuterRadius;
+//extern float guiBodyInnerRadius;
+//extern int guiBodyNumPoints;
 extern Color guiBodyColor;
 
 // forward declarations
@@ -24,6 +24,7 @@ extern float MAX_BODIES; //<- maximum number of bodies allowed // Declare MAX_BO
 
 // function prototypes
 ncBody* CreateBody(); // creates a new body and adds it ot the linked list // Declare CreateBody function that returns a Body pointer
+AddBody(ncBody* body); // adds a body to the linked list // Declare AddBody function that takes a Body pointer as an argument
 void UpdateBody(ncBody* body, float dt); // updates body properties // Declare UpdateBody function that takes a Body pointer and a float as arguments
 void DestroyBody(ncBody* body); // removes body from the linked list and frees its memory // Declare DestroyBody function that takes a Body pointer as an argument
 void DestroyAllBodies(); // removes all bodies from the linked list and frees their memory // Declare DestroyAllBodies function

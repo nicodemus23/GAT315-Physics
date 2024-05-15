@@ -1,14 +1,16 @@
 #pragma once
-#include "raylib.h"
 #include "body.h"
 #include "mathf.h"
 #include "world.h"
-#include "integrator.h"
-#include "raymath.h"
 #include "force.h"
+#include "integrator.h"
+#include "render.h"
 #include "editor.h"
 #include "shapes.h"
+#include "spring.h"
 //#define RAYGUI_IMPLEMENTATION
+#include "raylib.h"
+#include "raymath.h"
 
 #include "C:\Users\Nic\Documents\Neumont\6_Spring 2024\GAT315\GAT315-Physics\raygui\src\raygui.h"
 //#include "GUI_var.h"
@@ -23,13 +25,16 @@
 
 int main(void)
 {
+	ncBody* selectedBody = NULL;
+	ncBody* connectBody = NULL;
+
 	// Initialization of first Raylib window
 	InitWindow(1280, 720, "Physics Engine");
 	SetTargetFPS(60);
 
 	int screenWidth = GetScreenWidth();
 	int screenHeight = GetScreenHeight();
-	float ncScreenZoom;
+	float ncScreenZoom = 1.0f;
 	Vector2 size = { screenWidth, screenHeight };
 
 	// initialize world
@@ -41,10 +46,11 @@ int main(void)
 	RenderTexture2D tracerTexture = LoadRenderTexture(screenWidth, screenHeight); //<- tracer texture to keep track of previous frames
 	RenderTexture2D bloomTexture = LoadRenderTexture(screenWidth, screenHeight);
 
-
 	Shader bloomShader = LoadShader("resources/shaders/base.vs", "resources/shaders/PPS_bloom.fs");
-	Shader lensFlareShader = LoadShader("resources/shaders/base.vs", "resources/shaders/lens_flare.fs");
+	if (bloomShader.id == 0) printf("Error: Bloom shader failed to load.\n");
 
+	Shader lensFlareShader = LoadShader("resources/shaders/base.vs", "resources/shaders/lens_flare.fs");
+	if (lensFlareShader.id == 0) printf("Error: Bloom shader failed to load.\n");
 	// set bloom shader uniforms
 	//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "size"), &size, SHADER_UNIFORM_VEC2);
 	//float samples = 1.0f;
@@ -65,6 +71,8 @@ int main(void)
 
 	float scaleFactor = 5.0f;
 
+	//float ncScreenZoom = 1.0f;
+
 	// GUI variables
 	/*float guiBodyMass = 1.0f;
 	float guiBodyGravityScale = 1.0f;
@@ -80,9 +88,37 @@ int main(void)
 	{
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
+
 		Vector2 position = GetMousePosition();
-		//ncScreenZoom += GetMouseWheelMove() * 0.2f;
-		//ncScreenZoom = Clamp(ncScreenZoom, 0.f, 10);
+		ncScreenZoom += GetMouseWheelMove() * 0.2f;
+		ncScreenZoom = Clamp(ncScreenZoom, 0.f, 10);
+		InitEditor();
+
+		// Update editor data (class - 5.13.2024)
+		UpdateEditor(position);
+
+		// Update editor data (class - 5.13.2024)
+		selectedBody = GetBodyIntersect(ncBodies, position);
+		if (selectedBody)
+		{
+			Vector2 screen = ConvertWorldToScreen(selectedBody->position);
+			DrawCircleLines(screen.x, screen.y, ConvertWorldToPixel(selectedBody->mass) + 5, YELLOW);
+		}
+
+		// create body (class - 5.13.2024)
+		if (IsMouseButtonPressed(0))
+		{
+			float angle = GetRandomValue(0, 360);
+			for (int i = 0; i < 1; i++)
+			{
+				ncBody* body = CreateBody(ConvertScreenToWorld(position));
+				body->damping = ncEditorData.BodyDamping;
+				body->gravityScale = ncEditorData.BodyGravityScale;
+				body->color = GetStarColor(GetRandomValue(3000, 25000));
+
+				AddBody(body);
+			}
+		}
 
 		// Create a GUI window
 	//	Rectangle windowBounds = { 10, 60, 300, 400 };
@@ -103,7 +139,7 @@ int main(void)
 
 	//	numLights = 0; // reset number of lights each frame
 
-		if (IsMouseButtonDown(0))
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 		{
 			int numBodies = 80;
 			for (int i = 0; i < numBodies; i++)
@@ -111,18 +147,7 @@ int main(void)
 				ncBody* body = CreateBody();
 				if (body != NULL)
 				{
-					// Use GUI values to set body properties
-		/*			body->mass = guiBodyMass;
-					body->inverseMass = 1.0f / guiBodyMass;
-					body->damping = guiBodyDamping;
-					body->gravityScale = guiBodyGravityScale;
-					body->outerRadius = guiBodyOuterRadius;
-					body->innerRadius = guiBodyInnerRadius;
-					body->numPoints = guiBodyNumPoints;
-					body->color = guiBodyColor;
-					body->lifespan = guiBodyLifespan;
-					body->alpha = guiBodyAlpha;*/
-
+					
 					// calculate random position on surface of a sphere
 					float theta = GetRandomFloatValue(0, 2 * PI);
 					float phi = GetRandomFloatValue(0, PI);
@@ -149,6 +174,7 @@ int main(void)
 						body->type = BT_KINEMATIC;
 						break;
 					}
+
 					body->damping = ncEditorData.BodyDamping;// 0.2f;
 					body->gravityScale = ncEditorData.BodyGravityScale;
 
@@ -175,37 +201,53 @@ int main(void)
 				}
 			}
 		}
-		//BeginTextureMode(target);
-		//ClearBackground(BLACK);
 
-		
+		// Connect bodies with springs (class - 5.13.2024)
+		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) connectBody = selectedBody;
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && selectedBody) DrawLineBodyToPosition(connectBody, position);
+		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody)
+		{
+			if (selectedBody && selectedBody != connectBody)
+			{
+				ncSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), 20);
+				AddSpring(spring);
+			}
+		}
+
+		// apply force
+		//float gravitationStrength = 1.0f;
+		ApplyGravitation(ncBodies, ncEditorData.GravitationValue);
+		//ApplySpringForce(ncSprings);
 
 		// Update bodies and draw to target texture
 		ncBody* body = ncBodies;
 		while (body)
 		{
-			float gravitationStrength = 1.0f;
-			//ApplyGravitation(ncBodies, ncEditorData.GravitationValue);
-
-			ncBody* nextBody = body->next;
-			UpdateBody(body, dt);
-			if (body->lifespan == 0.0f && body->alpha == 0.0f) //<- if body has no lifespan and no alpha
+			if (body != NULL)
 			{
-				DestroyBody(body);
+				ncBody* nextBody = body->next;
+				UpdateBody(body, dt);
+				if (body->lifespan == 0.0f && body->alpha == 0.0f) //<- if body has no lifespan and no alpha
+				{
+					DestroyBody(body);
+				}
+				else
+				{
+
+					DrawStar(body->position, body->outerRadius, body->innerRadius, body->numPoints, body->color, body->randomTwinkleOffset, scaleFactor);
+					// check whether the body should be considered a lightsource
+					if ((body->color.r + body->color.g + body->color.b) / 3 > BRIGHTNESS_THRESHOLD && numLights < MAX_LIGHTS)
+					{
+						lightPositions[numLights++] = body->position;
+					}
+				}
+				body = nextBody;
 			}
 			else
 			{
-
-				DrawStar(body->position, body->outerRadius, body->innerRadius, body->numPoints, body->color, body->randomTwinkleOffset, scaleFactor);
-				// check whether the body should be considered a lightsource
-				if ((body->color.r + body->color.g + body->color.b) / 3 > BRIGHTNESS_THRESHOLD && numLights < MAX_LIGHTS)
-				{
-					lightPositions[numLights++] = body->position;
-				}
+				break;
 			}
-			body = nextBody;
 		}
-		//EndTextureMode();
 
 		// Update light positions for lense flare
 		SetShaderValue(lensFlareShader, GetShaderLocation(lensFlareShader, "lightPositions"), lightPositions, SHADER_UNIFORM_VEC2, numLights);
@@ -231,8 +273,6 @@ int main(void)
 			Color dimmedColor = ApplyDimming(body->color, 5000.1f);
 			DrawStar(body->position, body->outerRadius, body->innerRadius, body->numPoints, colorWithAlpha, body->randomTwinkleOffset, scaleFactor);
 			
-
-
 			body = body->next; //<- move to the next body
 		}
 		EndBlendMode();
@@ -262,7 +302,6 @@ int main(void)
 		BeginDrawing();
 		ClearBackground(BLACK);
 
-		
 		BeginShaderMode(bloomShader);
 		//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "size"), &(Vector2){ 1280, 720 }, SHADER_UNIFORM_VEC2);
 		//SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "samples"), &(float){ 10.0f }, SHADER_UNIFORM_FLOAT);
@@ -278,13 +317,31 @@ int main(void)
 		// Overlay tracers
 		DrawTextureRec(tracerTexture.texture, (Rectangle) { 0, 0, (float)tracerTexture.texture.width, -(float)tracerTexture.texture.height }, (Vector2) { 0, 0 }, WHITE); //<- draw tracer texture
 
-
-		DrawEditor();
+		// Draw editor
+		DrawEditor(position);
 		UpdateEditor(position);
-
 		// HUD
 		DrawText(TextFormat("FPS: %.2f (%.2fms)", fps, 1000 / fps), 10, 10, 20, LIME);
 		DrawText(TextFormat("FRAME: (%.4f)", dt), 10, 30, 20, LIME);
+
+		//// draw bodies (class - 5.13.2024)
+		for (ncBody* body = ncBodies; body; body = body->next)
+		{
+			Vector2 screen = ConvertWorldToScreen(body->position);
+			DrawCircle(screen.x, screen.y, ConvertWorldToPixel(body->mass), body->color);
+		}
+		// draw springs (class - 5.13.2024)
+		for (ncSpring_t* spring = ncSprings; spring; spring = spring->next)
+		{
+			Vector2 p1 = ConvertWorldToScreen(spring->body1->position);
+			Vector2 p2 = ConvertWorldToScreen(spring->body2->position);
+			DrawLineEx(p1, p2, 2, WHITE);
+			Vector2 screen1 = ConvertWorldToScreen(spring->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(spring->body2->position);
+			DrawLine((int)screen1.x, (int)screen1.y, (int)screen2.x,(int)screen2.y, YELLOW);
+		}
+
+	
 
 		EndDrawing();
 

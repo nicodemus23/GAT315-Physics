@@ -36,6 +36,7 @@
     <ClCompile Include="src\editor (2).c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Spring.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -90,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GUI_var.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\spring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,43 +12,40 @@ int ncBodyCount = 0;
 Vector2 ncGravity = { 0, 9.8f }; //<- gravity vector
 float LIFESPAN = 3.0f;
 //float MAX_BODIES = 100000;
-float guiBodyMass = 1.0f;
-float guiBodyGravityScale = 1.0f;
-float guiBodyDamping = 0.2f;
-float guiBodyLifespan = 0.0f;
-float guiBodyAlpha = 1.0f;
-float guiBodyOuterRadius = 5.0f;
-float guiBodyInnerRadius = 4.5f;
-int guiBodyNumPoints = 5;
+//float guiBodyMass = 1.0f;
+//float guiBodyGravityScale = 1.0f;
+//float guiBodyDamping = 0.2f;
+//float guiBodyLifespan = 0.0f;
+//float guiBodyAlpha = 1.0f;
+//float guiBodyOuterRadius = 5.0f;
+//float guiBodyInnerRadius = 4.5f;
+//int guiBodyNumPoints = 5;
 Color guiBodyColor;
 
-ncBody* CreateBody() // allocates memory for a new body, initializes its properties and adds it to the linked list
+ncBody* CreateBody(Vector2 position, float outerRadius, float innerRadius, int numPoints, Color color) // (!) was just () // allocates memory for a new body, initializes its properties and adds it to the linked list
 {
    
 	ncBody* body = (ncBody*)malloc(sizeof(ncBody)); //<- allocate memory for a new body
     assert(body != NULL);
 
+	memset(body, 0, sizeof(ncBody)); //<- sets all bytes of body to 0
+
     body->type = BT_DYNAMIC;
-    body->position = Vector2Zero();
+	body->position = position; // (!) was Vector2Zero()
     body->velocity = Vector2Zero();
     body->force = Vector2Zero();
     body->acceleration = Vector2Zero();
-    body->mass = guiBodyMass;
-    body->inverseMass = 1.0f / guiBodyMass;
-    body->gravityScale = guiBodyGravityScale;
-    body->damping = guiBodyDamping;
-    body->lifespan = guiBodyLifespan;
-    body->alpha = guiBodyAlpha;
-    body->outerRadius = guiBodyOuterRadius;
-    body->innerRadius = guiBodyInnerRadius;
-    body->numPoints = guiBodyNumPoints;
     body->randomTwinkleOffset = GetRandomFloatValue(0, 2 * PI);
     body->color = guiBodyColor;
 
-	memset(body, 0, sizeof(ncBody)); //<- sets all bytes of body to 0
+    body->outerRadius = outerRadius;
+	body->innerRadius = innerRadius;
+	body->numPoints = numPoints;
+
 
     body->prev = NULL;
-    body->next = ncBodies;
+	body->next = NULL; // was ncBodies; (!)
+    //body->next = ncBodies; (!)
 
     if (ncBodies != NULL)
         ncBodies->prev = body;
@@ -60,7 +57,27 @@ ncBody* CreateBody() // allocates memory for a new body, initializes its propert
 	body->lifespan = LIFESPAN;
 	body->alpha = 1.0f; // start off at full opacity
 
+   /* printf("Created body at (%.2f, %.2f)\n", body->position.x, body->position.y);
+    printf("Mass: %.2f, Inverse Mass: %.2f\n", body->mass, body->inverseMass);
+    printf("Velocity: (%.2f, %.2f)\n", body->velocity.x, body->velocity.y);
+    printf("Force: (%.2f, %.2f)\n", body->force.x, body->force.y);
+    printf("Acceleration: (%.2f, %.2f)\n", body->acceleration.x, body->acceleration.y);*/
+
     return body;
+}
+
+AddBody(ncBody* body)
+{
+	assert(body != NULL);
+
+    // add element to linked list
+	body->prev = NULL;
+	body->next = ncBodies;
+
+	if (ncBodies != NULL) ncBodies->prev = body;
+
+	ncBodies = body;
+	ncBodyCount++;
 }
 
 void UpdateBody(ncBody* body, float dt)
@@ -81,8 +98,28 @@ void UpdateBody(ncBody* body, float dt)
     float shrinkRate = 0.95f;
     body->mass *= shrinkRate;
 
-    printf("Body at (%.2f, %.2f) updated: lifespan = %.2f, alpha = %.2f\n", body->position.x, body->position.y, body->lifespan, body->alpha);
+    if (isnan(body->position.x) || isnan(body->position.y))
+    {
+		//printf("Body at (%.2f, %.2f) has NaN position\n", body->position.x, body->position.y);
+		//DestroyBody(body);
+		return;
+	}
+
+    //printf("Body at (%.2f, %.2f) updated: lifespan = %.2f, alpha = %.2f\n", body->position.x, body->position.y, body->lifespan, body->alpha);
+    
+   /* printf("Before update:\n");
+    printf("Position: (%.2f, %.2f)\n", body->position.x, body->position.y);
+    printf("Velocity: (%.2f, %.2f)\n", body->velocity.x, body->velocity.y);
+    printf("Force: (%.2f, %.2f)\n", body->force.x, body->force.y);
+    printf("Acceleration: (%.2f, %.2f)\n", body->acceleration.x, body->acceleration.y);*/
+
     Step(body, dt);
+
+   /* printf("After update:\n");
+    printf("Position: (%.2f, %.2f)\n", body->position.x, body->position.y);
+    printf("Velocity: (%.2f, %.2f)\n", body->velocity.x, body->velocity.y);
+    printf("Force: (%.2f, %.2f)\n", body->force.x, body->force.y);
+    printf("Acceleration: (%.2f, %.2f)\n", body->acceleration.x, body->acceleration.y);*/
 }
 
 
@@ -90,7 +127,7 @@ void DestroyBody(ncBody* body) // removes body from the linked list and frees it
 {
     assert(body != NULL);
 
-    printf("Destroying body at (%.2f, %.2f)\n", body->position.x, body->position.y);
+    //printf("Destroying body at (%.2f, %.2f)\n", body->position.x, body->position.y);
 
 
     if (body->prev != NULL)
@@ -101,6 +138,9 @@ void DestroyBody(ncBody* body) // removes body from the linked list and frees it
 
     if (body == ncBodies)
         ncBodies = body->next;
+
+	body->next = NULL; // <- set next pointer to NULL to avoid dangling pointers
+	body->prev = NULL; // <- set prev pointer to NULL to avoid dangling pointers
 
     free(body);
     ncBodyCount--;

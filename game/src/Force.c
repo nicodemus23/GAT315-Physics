@@ -2,6 +2,7 @@
 #include "world.h"
 #include "math.h"
 #include "body.h"
+#include "raymath.h"
 
 void ApplyGravitation(ncBody* bodies, float strength)
 {
@@ -20,7 +21,7 @@ void ApplyGravitation(ncBody* bodies, float strength)
 
 			// scale the direction vector by the force magnitude
 			direction = Vector2Scale(direction, force); // <- scale the direction vector by the force magnitude
-			direction = Vector2Normalize(direction); // <- scale the direction vector by the force magnitude to get the unit vector
+			//direction = Vector2Normalize(direction); // <- scale the direction vector by the force magnitude to get the unit vector
 		
 			// apply the force to the bodies
 			ApplyForce(body1, Vector2Negate(direction), FM_FORCE); // <- apply the force to the first body in the opposite direction of the unit vector (repulsion) 

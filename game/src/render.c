@@ -27,17 +27,17 @@ Vector2 ConvertScreenToWorld(Vector2 screen)
 Vector2 ConvertWorldToScreen(Vector2 world)
 {
 	float ratio = ncScreenSize.x / ncScreenSize.y;
-	Vector2 extents = (Vector2){ ncViewSize * ratio, ncViewSize };
-	extents = Vector2Scale(extents, ncScreenZoom);
+	Vector2 extents = (Vector2){ ncViewSize * ratio, ncViewSize }; // <- calculate the extents of the view
+	extents = Vector2Scale(extents, ncScreenZoom); // <- scale the extents by the screen zoom
 
 	Vector2 lower = Vector2Negate(extents);
-	Vector2 upper = extents;
+	Vector2 upper = extents; 
 
-	float nx = (world.x - lower.x) / (upper.x - lower.x);
-	float ny = (world.y - lower.y) / (upper.y - lower.y);
+	float nx = (world.x - lower.x) / (upper.x - lower.x); // <- normalize the x coordinate of the world position
+	float ny = (world.y - lower.y) / (upper.y - lower.y); 
 
 	Vector2 screen;
-	screen.x = nx * ncScreenSize.x;
+	screen.x = nx * ncScreenSize.x; 
 	screen.y = (1.0f - ny) * ncScreenSize.y;
 
 	return screen;

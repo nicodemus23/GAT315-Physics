@@ -273,6 +273,7 @@
     <ClCompile Include="src\Main.c" />
     <ClCompile Include="src\render.c" />
     <ClCompile Include="src\Shapes.c" />
+    <ClCompile Include="src\Spring.c" />
     <ClCompile Include="src\World.c" />
   </ItemGroup>
   <ItemGroup>
@@ -302,6 +303,7 @@
     <ClInclude Include="src\mathf.h" />
     <ClInclude Include="src\render.h" />
     <ClInclude Include="src\shapes.h" />
+    <ClInclude Include="src\spring.h" />
     <ClInclude Include="src\world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
