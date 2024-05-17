@@ -1,93 +1,88 @@
 #include "editor.h"
-#include "body.h"
-#include "render.h"
-
 #define RAYGUI_IMPLEMENTATION
 #include "../../raygui/src/raygui.h"
+#include "body.h"
+#include "render.h"
 
 bool ncEditorActive = true;
 bool ncEditorIntersect = false;
 Rectangle editorRect;
-ncEditorData_t ncEditorData;
 
-Vector2 anchor01 = { 950, 64 };
+Vector2 anchor01 = { 832, 64 };
 Texture2D cursorTexture;
 
 bool EditorBoxActive = true;
-float MassMinValue = 0.1f;
-float MassMaxValue = 1.0f;
-float GravitationValue = 0.0f;
-float cursorScale = 0.5f;
+float MassMinValue = 0.0f;
+float MassMaxValue = 0.0f;
+float Slider003Value = 0.0f;
+
+float cursorScale = 0.2f;
+
+
+jgEditorData_t jgEditorDataI;
+GuiLayoutNameState state;
 
 void InitEditor()
 {
 	GuiLoadStyle("raygui/styles/cyber/style_cyber.rgs");
-
 	Image image = LoadImage("resources/greetings.png");
-
 	cursorTexture = LoadTextureFromImage(image);
 	UnloadImage(image);
+
 	HideCursor();
 
-	ncEditorData.anchor01 = (Vector2) { 950, 64 };
-	ncEditorData.EditorBoxActive = true;
-	ncEditorData.MassMinValue = 0.1f;
-	ncEditorData.MassMaxValue = 1.0f;
-	//cEditorData.GravitationValue = 2.0f;
-	//ncEditorData.BodyTypeEditMode = false;
-	//ncEditorData.BodyTypeActive = 0;
-	//ncEditorData.GravityScaleValue = 0.0f;
-	ncEditorData.BodyType = 0;
-	ncEditorData.BodyGravityScale = 1.0f;
-	ncEditorData.BodyDamping = 0.2f;
-	//ncEditorData.DampingValue = 0.2f;
+	jgEditorDataI.Slider003Value = 2;
+	jgEditorDataI.MassMinValue = 0.1f;
+	jgEditorDataI.MassMaxValue = 10.0f;
 
-	editorRect = (Rectangle){ anchor01.x + 0, anchor01.y + 0, 296, 576 };
+	state.anchor01 = (Vector2){ 950, 56 };
+	state.anchor02 = (Vector2){ 950, 56 };
+
+	state.MassMinValue = 1.0f;
+	state.MassMaxValue = 10.0f;
+	state.GravityScaleValue = 1.0f;
+	state.BodyTypeEditMode = false;
+	state.BodyTypeActive = 0;
+	state.Damping = 0;
 }
 
 void UpdateEditor(Vector2 position)
 {
-	//toggle show/hide editor box with key press
-	if (IsKeyPressed(KEY_TAB)) EditorBoxActive = !EditorBoxActive;
-
-	// check if cursor position is intersecting the editor box
-	ncEditorIntersect = EditorBoxActive && CheckCollisionPointRec(position, editorRect);
+	//
 }
 
-void DrawEditor(Vector2 position)
+void DrawEditor(Vector2 mousePosition)
 {
-	if (ncEditorData.BodyTypeEditMode) GuiLock();
-
-	if (ncEditorData.EditorBoxActive)
+	if (state.BodyTypeEditMode) GuiLock();
+	if (EditorBoxActive)
 	{
-		ncEditorData.EditorBoxActive = !GuiWindowBox((Rectangle) { anchor01.x + 0, anchor01.y + 0, 296, 576 }, "Editor");
-		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 64, 120, 16 }, "Mass Min", NULL, & ncEditorData.MassMinValue, 0, 10);
-		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 112, 120, 16 }, "Mass Max", NULL, & ncEditorData.MassMaxValue, 0, 10);
-		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 160, 120, 16 }, "Gravitation", NULL, & ncEditorData.GravitationValue, 0, 100);
+		//EditorBoxActive = !GuiWindowBox((Rectangle) { anchor01.x + 0, anchor01.y + 0, 248, 464 }, "Editor");
+		//GuiSlider((Rectangle) { anchor01.x + 80, anchor01.y + 64, 120, 16 }, "MassMin", NULL, & jgEditorDataI.MassMinValue, 0, 100);
+		//GuiSlider((Rectangle) { anchor01.x + 80, anchor01.y + 88, 120, 16 }, "MassMax", NULL, & jgEditorDataI.MassMaxValue, 0, 100);
+		//GuiSlider((Rectangle) { anchor01.x + 80, anchor01.y + 112, 120, 16 }, "Gravitation", NULL, & jgEditorDataI.Slider003Value, 0, 100);
 
-	
-		// Body Type Dropdown
-		const char* bodyTypes[] = { "Dynamic", "Static", "Kinematic" };
-		ncEditorData.BodyType = GuiComboBox((Rectangle) { anchor01.x + 104, anchor01.y + 208, 120, 20 }, "Body Type", bodyTypes, 3, ncEditorData.BodyType);
 
-		// Body Gravity Scale Slider
-		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 256, 120, 16 }, "Body Gravity Scale", NULL, & ncEditorData.BodyGravityScale, 0, 5);
 
-		// Body Damping Slider
-		GuiSliderBar((Rectangle) { anchor01.x + 104, anchor01.y + 304, 120, 16 }, "Body Damping", NULL, & ncEditorData.BodyDamping, 0, 1);
-		//if (GuiButton((Rectangle) { anchor01.x + 104, anchor01.y + 352, 120, 20 }, GuiIconText(RICON_FILE_SAVE, "Save"))) SaveWorld("world.txt");
+
+		state.WindowBox001Active = !GuiWindowBox((Rectangle) { state.anchor02.x + 0, state.anchor02.y + 0, 256, 496 }, "Das GUI");
+		GuiSlider((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 40, 120, 16 }, "MassMin", NULL, & state.MassMinValue, 0, 100);
+		GuiSlider((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 72, 120, 16 }, "MassMax", NULL, & state.MassMaxValue, 0, 100);
+		GuiSlider((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 104, 120, 16 }, "GravityScale", NULL, & state.GravityScaleValue, 0, 10);
+		GuiSlider((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 204, 120, 16 }, "Damping", NULL, & state.Damping, 0, 10);
+		if (GuiDropdownBox((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 152, 120, 24 }, "Static; Kinematic; Dynamic", & state.BodyTypeActive, state.BodyTypeEditMode)) state.BodyTypeEditMode = !state.BodyTypeEditMode;
+
+
+
 	}
-	DrawTextureEx(cursorTexture, (Vector2) { position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2 }, 0.0f, cursorScale, WHITE);
-
-	if (ncEditorData.BodyTypeEditMode) GuiUnlock();
-	GuiUnlock();
+	DrawTextureEx(cursorTexture, (Vector2) {mousePosition.x - cursorTexture.width / 2 * cursorScale, (int)mousePosition.y - cursorTexture.height / 2 * cursorScale
+	}, 0.0f, cursorScale, WHITE);	GuiUnlock();
 }
 
-ncBody* GetBodyIntersect(ncBody* bodies, Vector2 position)
+Body* GetBodyIntersect(Body* bodies, Vector2 position)
 {
-	for (ncBody* body = bodies; body; body = body->next)
+	for (Body* body = bodies; body; body = body->next)
 	{
-		Vector2 screen = ConvertWorldToScreen(body->position);
+		Vector2 screen = ConvertWorldToScreen(body->Position);
 		if (CheckCollisionPointCircle(position, screen, ConvertWorldToPixel(body->mass)))
 		{
 			return body;
@@ -97,8 +92,8 @@ ncBody* GetBodyIntersect(ncBody* bodies, Vector2 position)
 	return NULL;
 }
 
-void DrawLineBodyToPosition(ncBody* body, Vector2 position)
+void DrawLineBodyToPosition(Body* body, Vector2 position)
 {
-	Vector2 screen = ConvertWorldToScreen(body->position);
+	Vector2 screen = ConvertWorldToScreen(body->Position);
 	DrawLine((int)screen.x, (int)screen.y, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, YELLOW);
 }

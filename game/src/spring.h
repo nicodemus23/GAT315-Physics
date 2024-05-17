@@ -1,24 +1,22 @@
 #pragma once
 
-typedef struct ncSpring
-{
-	struct ncBody* body1;
-	struct ncBody* body2;
+
+struct Body;
+typedef struct jgSpring_t {
+	struct Body* body1;
+	struct Body* body2;
 	float restLength;
-	float k; // stiffness
+	float k; //stiffness
 
-	struct ncSpring* next;
-	struct ncSpring* prev;
+	struct jgSpring_t* next;
+	struct jgSpring_t* prev;
 
+}jgSpring_t;
 
-} ncSpring_t; // _t mean s it's a data type
+extern jgSpring_t* jgsprings;
 
-extern ncSpring_t* ncSprings;
+jgSpring_t* CreateSpring(struct Body* body1, struct Body* body2, float rest, float k);
+void AddSpring(jgSpring_t* body);
+void DestroySpring(jgSpring_t* body);
 
-// function prototypes
-ncSpring_t* CreateSpring(struct ncBody* body1, struct ncBody* body2, float restLength, float k); // creates a new body and adds it ot the linked list // Declare CreateBody function that returns a Body pointer
-void AddSpring(ncSpring_t* spring); // adds a body to the linked list // Declare AddBody function that takes a Body pointer as an argument
-void DestroySpring(ncSpring_t* spring); // removes body from the linked list and frees its memory // Declare DestroyBody function that takes a Body pointer as an argument
-void DestroyAllSprings(); // removes all bodies from the linked list and frees their memory // Declare DestroyAllBodies function
-
-void ApplySpringForce(ncSpring_t* springs);
+void ApplySpringForce(jgSpring_t* spring);

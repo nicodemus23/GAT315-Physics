@@ -1,16 +1,13 @@
 #pragma once
-#include "body.h"
+#include "Body.h"
+#include "raymath.h"
 
-
-// performs the Explicit Euler integration method to update the position and velocity of a body based on its force and a given timestep.
-inline void ExplicitEuler(ncBody* body, float timestep) 
-{
-	body->position = Vector2Add(body->position, Vector2Scale(body->velocity, timestep)); // x(t + dt) = x(t) + v(t) * dt
-	body->velocity = Vector2Add(body->velocity, Vector2Scale(body->acceleration, timestep)); // v(t + dt) = v(t) + (F / m) * dt
+inline void ExplicitEuler(Body* body, float timestep) {
+	body->Position = Vector2Add(body->Position, Vector2Scale(body->Velocity, timestep));
+	body->Velocity = Vector2Add(body->Velocity, Vector2Scale(body->Acceleration, timestep));
 }
 
-inline void SemiImplicitEuler(ncBody* body, float timestep)
-{	// velocity is updated first, then position (ExplicitEuler updates position first, then velocity)
-	body->velocity = Vector2Add(body->velocity, Vector2Scale(body->acceleration, timestep)); // v(t + dt) = v(t) + (F / m) * dt
-	body->position = Vector2Add(body->position, Vector2Scale(body->velocity, timestep)); // x(t + dt) = x(t) + v(t + dt) * dt
+inline void SemiImplicitEuler(Body* body, float timestep) {
+	body->Velocity = Vector2Add(body->Velocity, Vector2Scale(body->Acceleration, timestep));
+	body->Position = Vector2Add(body->Position, Vector2Scale(body->Velocity, timestep));
 }

@@ -32,6 +32,7 @@
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>GAT315-Physics</RootNamespace>
+    <ProjectName>GAT315-Physics-II</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -267,7 +268,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Body.c" />
-    <ClCompile Include="src\editor (2).c" />
+    <ClCompile Include="src\Collision.c" />
+    <ClCompile Include="src\contact.c" />
     <ClCompile Include="src\editor.c" />
     <ClCompile Include="src\Force.c" />
     <ClCompile Include="src\Main.c" />
@@ -293,12 +295,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\Dropbox\PC\Downloads\editor 1.h" />
     <ClInclude Include="..\raygui\src\raygui.h" />
     <ClInclude Include="src\body.h" />
+    <ClInclude Include="src\collision.h" />
+    <ClInclude Include="src\contact.h" />
     <ClInclude Include="src\editor.h" />
     <ClInclude Include="src\force.h" />
-    <ClInclude Include="src\GUI_var.h" />
     <ClInclude Include="src\integrator.h" />
     <ClInclude Include="src\mathf.h" />
     <ClInclude Include="src\render.h" />

@@ -33,10 +33,15 @@
     <ClCompile Include="src\Shapes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\editor (2).c">
+    <ClCompile Include="src\contact.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Spring.c" />
+    <ClCompile Include="src\Collision.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Spring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -81,19 +86,19 @@
     <ClInclude Include="src\editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\Dropbox\PC\Downloads\editor 1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\shapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\raygui\src\raygui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GUI_var.h">
+    <ClInclude Include="src\spring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\spring.h">
+    <ClInclude Include="src\contact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

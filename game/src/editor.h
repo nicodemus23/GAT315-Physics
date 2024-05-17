@@ -1,32 +1,38 @@
 #pragma once
 #include "raylib.h"
 
-typedef struct ncEditorData
-{
-	bool EditorBoxActive;
-	float MassMinValue;
-	float MassMaxValue;
-	float GravitationValue;
-	bool BodyTypeEditMode;
-	int BodyTypeActive;
-	float GravityScaleValue;
-	int BodyType;
-	float BodyGravityScale;
-	float BodyDamping;
-	float DampingValue; // not sure if this is needed (was in Maple's code)
-	Vector2 anchor01;
-
-} ncEditorData_t;
-
-extern ncEditorData_t ncEditorData;
-
 extern bool ncEditorActive;
 extern bool ncEditorIntersect;
 
-void InitEditor();
-//void UpdateEditor(Vector2 position);
-void UpdateEditor(Vector2 mousePosition);
-void DrawEditor(Vector2 position);
+typedef struct jgEditorData {
+    float MassMinValue;
+    float MassMaxValue;
+    float Slider003Value;
+} jgEditorData_t;
 
-struct ncBody* GetBodyIntersect(struct ncBody* bodies, Vector2 position); 
-void DrawLineBodyToPosition(struct ncBody* body, Vector2 position);
+typedef struct {
+    Vector2 anchor01;
+    Vector2 anchor02;
+
+    bool WindowBox001Active;
+    float MassMinValue;
+    float MassMaxValue;
+    float GravityScaleValue;
+    bool BodyTypeEditMode;
+    int BodyTypeActive;
+    float Damping;
+
+    // Custom state variables (depend on development software)
+    // NOTE: This variables should be added manually if required
+
+} GuiLayoutNameState;
+
+extern jgEditorData_t jgEditorDataI;
+extern GuiLayoutNameState state;
+
+void InitEditor();
+void UpdateEditor(Vector2 mousePosition);
+void DrawEditor(Vector2 mousePosition);
+
+struct Body* GetBodyIntersect(struct Body* bodies, Vector2 position);
+void DrawLineBodyToPosition(struct Body* body, Vector2 position);

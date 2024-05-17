@@ -1,16 +1,12 @@
-#include "body.h"
-#include "mathf.h"
-#include "raylib.h"
-#include "raymath.h"
 #include <stdlib.h>
 #include <assert.h>
-#include <world.h>
+#include <World_2.h>
 #include "integrator.h"
-#include "force.h"
+#include "Force.h"
 #include "render.h"
 #include "editor.h"
-#include "spring.h"
-#include "collision.h"
+#include "Spring.h"
+#include "Collision.h"
 #include "contact.h"
 
 
@@ -24,10 +20,10 @@ int main(void)
 	SetTargetFPS(60);
 
 	//initialize world
-	jgGravity = (Vector2){ 0,-10 };
+	ncGravity = (Vector2){ 0,-10 };
 
-	Body* selectedBody = NULL;
-	Body* connectBody = NULL;
+	ncBody* selectedBody = NULL;
+	ncBody* connectBody = NULL;
 
 	Vector2 prevPos = Vector2Zero();
 	//game loop
@@ -42,16 +38,16 @@ int main(void)
 		ncScreenZoom = Clamp(ncScreenZoom, 0.1f, 10.0f);
 		UpdateEditor(position);
 
-		selectedBody = GetBodyIntersect(jgBodies, position);
+		selectedBody = GetBodyIntersect(ncBodies, position);
 		if (selectedBody) {
-			Vector2 screen = ConvertWorldToScreen(selectedBody->Position);
+			Vector2 screen = ConvertWorldToScreen(selectedBody->position);
 			DrawCircleLines(screen.x, screen.y, ConvertWorldToPixel(selectedBody->mass * 0.5f) + 5, YELLOW);
 		}
 
 		if (IsMouseButtonPressed(0)) {
-			Body* newbody = CreateBody(ConvertScreenToWorld(position), GetRandomFloatValue(state.MassMinValue, state.MassMaxValue), state.BodyTypeActive);
+			ncBody* newbody = CreateBody(ConvertScreenToWorld(position), GetRandomFloatValue(ncEditorData.MassMinValue, ncEditorData.MassMaxValue), ncEditorData.BodyTypeActive);
 			AddBody(newbody);
-			newbody->gravityScale = state.GravityScaleValue;
+			newbody->gravityScale = ncEditorData.GravityScaleValue;
 			newbody->restitution = 1.0f;
 			int num = (rand() % (3 - 1 + 1)) + 1;
 			switch (num)
@@ -77,7 +73,7 @@ int main(void)
 		}
 		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody) {
 			if (selectedBody && selectedBody != connectBody) {
-				jgSpring_t* spring = CreateSpring(selectedBody, connectBody, 1, 10);
+				ncSpring_t* spring = CreateSpring(selectedBody, connectBody, 1, 10);
 				AddSpring(spring);
 			}
 		}
@@ -93,24 +89,24 @@ int main(void)
 		}*/
 
 
-		Body* currentbody = jgBodies;
+		ncBody* currentbody = ncBodies;
 		//apply gravitation
 		//ApplyGravitation(jgBodies, 20);
 
-		ApplySpringForce(jgsprings);
+		ApplySpringForce(ncSprings);
 
-		for (Body* body = jgBodies; body; body = body->next) {
+		for (ncBody* body = ncBodies; body; body = body->next) {
 			Step(body, dt);
 		}
 
 		//collision
 		ncContact_t* Contacts = NULL;
-		CreateContacts(jgBodies, &Contacts);
+		CreateContacts(ncBodies, &Contacts);
 		SeparateContacts(Contacts);
 		ResolveContacts(Contacts);
 
 
-		currentbody = jgBodies;
+		currentbody = ncBodies;
 		while (currentbody) {
 
 
@@ -127,23 +123,23 @@ int main(void)
 
 		//DrawCircle((int)position.x, (int)position.y, 10, RED);
 		//draw bodies
-		currentbody = jgBodies;
-		for (Body* body = jgBodies; body; body = body->next) {
-			Vector2 screen = ConvertWorldToScreen(body->Position);
+		currentbody = ncBodies;
+		for (ncBody* body = ncBodies; body; body = body->next) {
+			Vector2 screen = ConvertWorldToScreen(body->position);
 			DrawCircle((int)screen.x, (int)screen.y, ConvertWorldToPixel(body->mass * 0.5f), body->color);
 			currentbody = currentbody->next;
 		}
 
-		for (jgSpring_t* spring = jgsprings; spring; spring = spring->next) {
-			Vector2 screen1 = ConvertWorldToScreen(spring->body1->Position);
-			Vector2 screen2 = ConvertWorldToScreen(spring->body2->Position);
+		for (ncSpring_t* spring = ncSprings; spring; spring = spring->next) {
+			Vector2 screen1 = ConvertWorldToScreen(spring->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(spring->body2->position);
 			DrawLine(screen1.x, screen1.y, screen2.x, screen2.y, LIME);
 
 		}
 
 		for (ncContact_t* contact = Contacts; contact; contact = contact->next) {
-			Vector2 screen = ConvertWorldToScreen(contact->body1->Position);
-			Vector2 screen2 = ConvertWorldToScreen(contact->body2->Position);
+			Vector2 screen = ConvertWorldToScreen(contact->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(contact->body2->position);
 			DrawCircleLines((int)screen.x, (int)screen.y, ConvertWorldToPixel(contact->body1->mass * 0.5f), RED);
 			DrawCircleLines((int)screen2.x, (int)screen2.y, ConvertWorldToPixel(contact->body2->mass * 0.5f), RED);
 		}
