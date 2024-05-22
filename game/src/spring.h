@@ -1,22 +1,26 @@
 #pragma once
+#include "body.h"
 
-
-struct Body;
-typedef struct jgSpring_t {
-	struct Body* body1;
-	struct Body* body2;
+struct ncBody;
+typedef struct ncSpring_t {
+	struct ncBody* body1;
+	struct ncBody* body2;
 	float restLength;
 	float k; //stiffness
 
-	struct jgSpring_t* next;
-	struct jgSpring_t* prev;
+	struct ncSpring_t* next;
+	struct ncSpring_t* prev;
 
-}jgSpring_t;
+}ncSpring_t;
 
-extern jgSpring_t* jgsprings;
+extern ncSpring_t* ncSprings;
 
-jgSpring_t* CreateSpring(struct Body* body1, struct Body* body2, float rest, float k);
-void AddSpring(jgSpring_t* body);
-void DestroySpring(jgSpring_t* body);
 
-void ApplySpringForce(jgSpring_t* spring);
+ncSpring_t* CreateSpring(struct ncBody* body1, struct ncBody* body2, float rest, float k);
+void AddSpring(ncSpring_t* spring);
+void DestroySpring(ncSpring_t* spring);
+void DestroyAllSprings(); // removes all bodies from the linked list and frees their memory // Declare DestroyAllBodies function
+
+
+void ApplySpringForce(ncSpring_t* springs);
+void ApplySpringForcePosition(Vector2 position, ncBody* body, float restLength, float k, float damping); // Apply a spring force to a body at a specific position

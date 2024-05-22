@@ -4,18 +4,18 @@
 #include "stdlib.h"
 #include "assert.h"
 
-bool Intersects(Body* body1, Body* body2) {
+bool Intersects(ncBody* body1, ncBody* body2) {
 	// if distance is less than radius
 
-	float distance = Vector2Distance(body1->Position, body2->Position);
+	float distance = Vector2Distance(body1->position, body2->position);
 	float radius = body1->mass + body2->mass;
 
 	return distance <= radius;
 }
 
-void CreateContacts(Body* bodies, ncContact_t** contacts) {
-	for (Body* body1 = bodies; body1; body1 = body1->next) {
-		for (Body* body2 = body1->next; body2; body2 = body2->next) {
+void CreateContacts(ncBody* bodies, ncContact_t** contacts) {
+	for (ncBody* body1 = bodies; body1; body1 = body1->next) {
+		for (ncBody* body2 = body1->next; body2; body2 = body2->next) {
 			if (body1 == body2) continue;
 			if (body1->type != BT_DYNAMIC && body2->type != BT_DYNAMIC) continue;
 
@@ -27,7 +27,7 @@ void CreateContacts(Body* bodies, ncContact_t** contacts) {
 	}
 }
 
-ncContact_t* GenerateContact(Body* body1, Body* body2) {
+ncContact_t* GenerateContact(ncBody* body1, ncBody* body2) {
 	ncContact_t* contact = (ncContact_t*)malloc(sizeof(ncContact_t));
 	assert(contact);
 
@@ -36,7 +36,7 @@ ncContact_t* GenerateContact(Body* body1, Body* body2) {
 	contact->body1 = body1;
 	contact->body2 = body2;
 
-	Vector2 direction = Vector2Subtract(body1->Position, body2->Position);
+	Vector2 direction = Vector2Subtract(body1->position, body2->position);
 	float distance = Vector2Length(direction);
 	if (distance == 0)
 	{
@@ -61,9 +61,9 @@ void SeparateContacts(ncContact_t* contacts) {
 		// Calculate the separation vector based on the contact normal and depth.
 		Vector2 separation = Vector2Scale(contact->normal, (contact->depth / totalInverseMass));
 		// Move body1 away from body2 proportionally to its inverse mass.
-		contact->body1->Position = Vector2Add(contact->body1->Position, Vector2Scale(separation, contact->body1->inverseMass));
+		contact->body1->position = Vector2Add(contact->body1->position, Vector2Scale(separation, contact->body1->inverseMass));
 		// Move body2 away from body1 proportionally to its inverse mass, with opposite direction.
-		contact->body2->Position = Vector2Add(contact->body2->Position, Vector2Scale(separation, -contact->body2->inverseMass));
+		contact->body2->position = Vector2Add(contact->body2->position, Vector2Scale(separation, -contact->body2->inverseMass));
 	}
 }
 

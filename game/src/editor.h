@@ -4,11 +4,11 @@
 extern bool ncEditorActive;
 extern bool ncEditorIntersect;
 
-typedef struct jgEditorData {
+typedef struct ncEditorData {
     float MassMinValue;
     float MassMaxValue;
     float Slider003Value;
-} jgEditorData_t;
+} ncEditorData_t;
 
 typedef struct {
     Vector2 anchor01;
@@ -27,12 +27,12 @@ typedef struct {
 
 } GuiLayoutNameState;
 
-extern jgEditorData_t jgEditorDataI;
+extern ncEditorData_t jgEditorDataI;
 extern GuiLayoutNameState state;
 
 void InitEditor();
-void UpdateEditor(Vector2 mousePosition);
-void DrawEditor(Vector2 mousePosition);
+void UpdateEditor(Vector2 mouseposition);
+void DrawEditor(Vector2 mouseposition);
 
-struct Body* GetBodyIntersect(struct Body* bodies, Vector2 position);
-void DrawLineBodyToPosition(struct Body* body, Vector2 position);
+struct ncBody* GetBodyIntersect(struct ncBody* bodies, Vector2 position);
+void DrawLineBodyToposition(struct ncBody* body, Vector2 position);

@@ -19,7 +19,7 @@ float Slider003Value = 0.0f;
 float cursorScale = 0.2f;
 
 
-jgEditorData_t jgEditorDataI;
+ncEditorData_t jgEditorDataI;
 GuiLayoutNameState state;
 
 void InitEditor()
@@ -61,9 +61,6 @@ void DrawEditor(Vector2 mousePosition)
 		//GuiSlider((Rectangle) { anchor01.x + 80, anchor01.y + 88, 120, 16 }, "MassMax", NULL, & jgEditorDataI.MassMaxValue, 0, 100);
 		//GuiSlider((Rectangle) { anchor01.x + 80, anchor01.y + 112, 120, 16 }, "Gravitation", NULL, & jgEditorDataI.Slider003Value, 0, 100);
 
-
-
-
 		state.WindowBox001Active = !GuiWindowBox((Rectangle) { state.anchor02.x + 0, state.anchor02.y + 0, 256, 496 }, "Das GUI");
 		GuiSlider((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 40, 120, 16 }, "MassMin", NULL, & state.MassMinValue, 0, 100);
 		GuiSlider((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 72, 120, 16 }, "MassMax", NULL, & state.MassMaxValue, 0, 100);
@@ -71,18 +68,16 @@ void DrawEditor(Vector2 mousePosition)
 		GuiSlider((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 204, 120, 16 }, "Damping", NULL, & state.Damping, 0, 10);
 		if (GuiDropdownBox((Rectangle) { state.anchor02.x + 112, state.anchor02.y + 152, 120, 24 }, "Static; Kinematic; Dynamic", & state.BodyTypeActive, state.BodyTypeEditMode)) state.BodyTypeEditMode = !state.BodyTypeEditMode;
 
-
-
 	}
 	DrawTextureEx(cursorTexture, (Vector2) {mousePosition.x - cursorTexture.width / 2 * cursorScale, (int)mousePosition.y - cursorTexture.height / 2 * cursorScale
 	}, 0.0f, cursorScale, WHITE);	GuiUnlock();
 }
 
-Body* GetBodyIntersect(Body* bodies, Vector2 position)
+ncBody* GetBodyIntersect(ncBody* bodies, Vector2 position)
 {
-	for (Body* body = bodies; body; body = body->next)
+	for (ncBody* body = bodies; body; body = body->next)
 	{
-		Vector2 screen = ConvertWorldToScreen(body->Position);
+		Vector2 screen = ConvertWorldToScreen(body->position);
 		if (CheckCollisionPointCircle(position, screen, ConvertWorldToPixel(body->mass)))
 		{
 			return body;
@@ -92,8 +87,8 @@ Body* GetBodyIntersect(Body* bodies, Vector2 position)
 	return NULL;
 }
 
-void DrawLineBodyToPosition(Body* body, Vector2 position)
+void DrawLineBodyToPosition(ncBody* body, Vector2 position)
 {
-	Vector2 screen = ConvertWorldToScreen(body->Position);
+	Vector2 screen = ConvertWorldToScreen(body->position);
 	DrawLine((int)screen.x, (int)screen.y, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, YELLOW);
 }

@@ -2,7 +2,7 @@
 #include "integrator.h"
 #include "world.h"
 
-void Step(Body* body, float timestep) {
+void Step(ncBody* body, float timestep) {
 	body->Force = Vector2Add(body->Force, Vector2Scale(Vector2Scale(jgGravity, body->gravityScale), body->mass));
 	body->Acceleration = Vector2Scale(body->Force, body->inverseMass);
 	SemiImplicitEuler(body, timestep);

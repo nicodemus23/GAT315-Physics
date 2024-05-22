@@ -12,12 +12,12 @@ typedef enum {
 	FM_FORCE,
 	FM_IMPULSE,
 	FM_VELOCITY
-} jgForceMode;
+} ncForceMode;
 
-typedef struct Body
+typedef struct ncBody
 {
 	bodyType type;
-	Vector2 Position;
+	Vector2 position;
 	Vector2 Velocity;
 	Vector2 Acceleration;
 	Vector2 Force;
@@ -30,14 +30,15 @@ typedef struct Body
 
 	Color color;
 
-	struct Body* next;
-	struct Body* prev;
-} Body;
+	struct ncBody* next;
+	struct ncBody* prev;
+} ncBody;
 
-inline void ApplyForce(Body* body, Vector2 force, jgForceMode fm) {
+inline void ApplyForce(ncBody* body, Vector2 force, ncForceMode forceMode) 
+{
 	if (body->type != BT_DYNAMIC) return;
 
-	switch (fm) {
+	switch (forceMode) {
 	case FM_FORCE:
 		body->Force = Vector2Add(body->Force, force);
 		break;
@@ -52,8 +53,9 @@ inline void ApplyForce(Body* body, Vector2 force, jgForceMode fm) {
 
 }
 
-inline void ClearForce(Body* body) {
+inline void ClearForce(ncBody* body) 
+{
 	body->Force = Vector2Zero();
 }
 
-void Step(Body* body, float timestep);
+void Step(ncBody* body, float timestep);

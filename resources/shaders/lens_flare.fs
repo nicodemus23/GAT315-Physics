@@ -6,7 +6,7 @@ out vec4 finalColor;
 
 uniform sampler2D texture0;
 uniform vec2 resolution;
-uniform vec2 lightPositions[10]; // Array of light positions
+uniform vec2 lightpositions[10]; // Array of light positions
 uniform int numLights; // Number of active lights
 
 const int NUM_SAMPLES = 24;
@@ -20,7 +20,7 @@ void main()
 
     for (int light = 0; light < numLights; ++light)
     {
-        vec2 delta = (texCoord - lightPositions[light]) * DISPERSION / resolution;
+        vec2 delta = (texCoord - lightpositions[light]) * DISPERSION / resolution;
         for (int i = 1; i <= NUM_SAMPLES; ++i)
         {
             color += texture(texture0, texCoord + delta * float(i));

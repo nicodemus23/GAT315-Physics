@@ -4,17 +4,17 @@
 #include <assert.h>
 #include <string.h>
 
-Body* jgBodies = NULL;
+ncBody* ncBodies = NULL;
 int jgBodyCount = 0;
 Vector2 jgGravity;
 
-Body* CreateBody(Vector2 position, float mass, bodyType bt) {
-	Body* body = (Body*)malloc(sizeof(Body));
+ncBody* CreateBody(Vector2 position, float mass, bodyType bt) {
+	ncBody* body = (ncBody*)malloc(sizeof(ncBody));
 	assert(body);
 
-	memset(body, 0, sizeof(Body));
+	memset(body, 0, sizeof(ncBody));
 
-	body->Position = position;
+	body->position = position;
 	body->mass = mass;
 	body->type = bt;
 	body->inverseMass = (bt == BT_DYNAMIC) ? 1 / mass : 0;
@@ -23,22 +23,22 @@ Body* CreateBody(Vector2 position, float mass, bodyType bt) {
 	return body;
 }
 
-void AddBody(Body* body) {
+void AddBody(ncBody* body) {
 	assert(body);
 	body->prev = NULL;
-	body->next = jgBodies;
-	if (jgBodies != NULL) {
-		jgBodies->prev = body;
+	body->next = ncBodies;
+	if (ncBodies != NULL) {
+		ncBodies->prev = body;
 	}
 	jgBodyCount++;
-	jgBodies = body;
+	ncBodies = body;
 }
 
-void DestroyBody(Body* body) {
+void DestroyBody(ncBody* body) {
 	assert(body);
 	if (body->prev != NULL) body->prev->next = body->next;
 	if (body->next != NULL) body->next->prev = body->prev;
-	if (jgBodies == body) jgBodies = body->next;
+	if (ncBodies == body) ncBodies = body->next;
 	jgBodyCount--;
 	free(body);
 }

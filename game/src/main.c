@@ -26,10 +26,17 @@ int main(void)
 	//initialize world
 	jgGravity = (Vector2){ 0,-10 };
 
-	Body* selectedBody = NULL;
-	Body* connectBody = NULL;
+	ncBody* selectedBody = NULL;
+	ncBody* connectBody = NULL;
 
 	Vector2 prevPos = Vector2Zero();
+
+	// fixed time step logic
+	double timeAccumulator = 0.0; //accumulates delta time
+	double fixedTimeStep = 1.0f / 50.0f; //rate that physics simulator will run at
+
+
+
 	//game loop
 	while (!WindowShouldClose())
 	{
@@ -42,14 +49,16 @@ int main(void)
 		ncScreenZoom = Clamp(ncScreenZoom, 0.1f, 10.0f);
 		UpdateEditor(position);
 
-		selectedBody = GetBodyIntersect(jgBodies, position);
+		// handle user input and selection
+		selectedBody = GetBodyIntersect(ncBodies, position);
 		if (selectedBody) {
-			Vector2 screen = ConvertWorldToScreen(selectedBody->Position);
+			Vector2 screen = ConvertWorldToScreen(selectedBody->position);
 			DrawCircleLines(screen.x, screen.y, ConvertWorldToPixel(selectedBody->mass * 0.5f) + 5, YELLOW);
 		}
 
+		// create a new body on left mouse click
 		if (IsMouseButtonPressed(0)) {
-			Body* newbody = CreateBody(ConvertScreenToWorld(position), GetRandomFloatValue(state.MassMinValue, state.MassMaxValue), state.BodyTypeActive);
+			ncBody* newbody = CreateBody(ConvertScreenToWorld(position), GetRandomFloatValue(state.MassMinValue, state.MassMaxValue), state.BodyTypeActive);
 			AddBody(newbody);
 			newbody->gravityScale = state.GravityScaleValue;
 			newbody->restitution = 1.0f;
@@ -69,6 +78,8 @@ int main(void)
 			//ApplyForce(newbody, (Vector2) { GetRandomFloatValue(-200, 200), GetRandomFloatValue(-200, 200) }, FM_VELOCITY);
 			//newbody->Velocity = );
 		}
+
+		// connect bodies with spring on right mouse click
 		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) {
 			connectBody = selectedBody;
 		}
@@ -77,40 +88,53 @@ int main(void)
 		}
 		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody) {
 			if (selectedBody && selectedBody != connectBody) {
-				jgSpring_t* spring = CreateSpring(selectedBody, connectBody, 1, 10);
+				ncSpring_t* spring = CreateSpring(selectedBody, connectBody, 1, 10);
 				AddSpring(spring);
 			}
 		}
-		/*else if (IsMouseButtonDown(1)) {
-			Body* newbody = CreateBody();
-			newbody->Position = ConvertScreenToWorld(position);
-			newbody->mass = GetRandomFloatValue(1, 1);
-			newbody->inverseMass = 1 / newbody->mass;
-			newbody->type = BT_DYNAMIC;
-			newbody->damping = 0.5f;
-			newbody->gravityScale = 1.0f;
-			newbody->color = ORANGE;
-		}*/
 
+		// add delta time to time accumulator
+		timeAccumulator += dt;
 
-		Body* currentbody = jgBodies;
+		// create a while loop that loops while the time accumulator is greater than or equal to the fixed time step
+		while (timeAccumulator >= fixedTimeStep) 
+		{
+			// subtract fixed time step from time accumulator
+			timeAccumulator -= fixedTimeStep;
+			// apply gravitation and other forces
+			//ApplyGravitation(ncBodies, 0.1f); 
+			ApplySpringForce(ncSprings);
+			// step each body, make sure to pass in the fixed time step for the timestep
+			for (ncBody* body = ncBodies; body; body = body->next) {
+				Step(body, fixedTimeStep);
+				// destroy all contacts, create contacts, separate contacts, resolve contacts (collision)
+				ncContact_t* contacts = NULL;
+				DestroyAllContacts(&contacts);
+				CreateContacts(ncBodies, &contacts);
+				SeparateContacts(contacts);
+				ResolveContacts(contacts);
+
+			}
+		}
+
+		// ===== Physics Update =====
+		ncBody* currentbody = ncBodies;
 		//apply gravitation
-		//ApplyGravitation(jgBodies, 20);
+		//ApplyGravitation(ncBodies, 2); 
 
-		ApplySpringForce(jgsprings);
+		//ApplySpringForce(ncSprings);
 
-		for (Body* body = jgBodies; body; body = body->next) {
+		for (ncBody* body = ncBodies; body; body = body->next) {
 			Step(body, dt);
 		}
 
 		//collision
-		ncContact_t* Contacts = NULL;
-		CreateContacts(jgBodies, &Contacts);
-		SeparateContacts(Contacts);
-		ResolveContacts(Contacts);
+		ncContact_t* contacts = NULL;
+		/*CreateContacts(ncBodies, &contacts);
+		SeparateContacts(contacts);
+		ResolveContacts(contacts);*/
 
-
-		currentbody = jgBodies;
+		currentbody = ncBodies;
 		while (currentbody) {
 
 
@@ -127,23 +151,23 @@ int main(void)
 
 		//DrawCircle((int)position.x, (int)position.y, 10, RED);
 		//draw bodies
-		currentbody = jgBodies;
-		for (Body* body = jgBodies; body; body = body->next) {
-			Vector2 screen = ConvertWorldToScreen(body->Position);
+		currentbody = ncBodies;
+		for (ncBody* body = ncBodies; body; body = body->next) {
+			Vector2 screen = ConvertWorldToScreen(body->position);
 			DrawCircle((int)screen.x, (int)screen.y, ConvertWorldToPixel(body->mass * 0.5f), body->color);
 			currentbody = currentbody->next;
 		}
 
-		for (jgSpring_t* spring = jgsprings; spring; spring = spring->next) {
-			Vector2 screen1 = ConvertWorldToScreen(spring->body1->Position);
-			Vector2 screen2 = ConvertWorldToScreen(spring->body2->Position);
+		for (ncSpring_t* spring = ncSprings; spring; spring = spring->next) {
+			Vector2 screen1 = ConvertWorldToScreen(spring->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(spring->body2->position);
 			DrawLine(screen1.x, screen1.y, screen2.x, screen2.y, LIME);
 
 		}
 
-		for (ncContact_t* contact = Contacts; contact; contact = contact->next) {
-			Vector2 screen = ConvertWorldToScreen(contact->body1->Position);
-			Vector2 screen2 = ConvertWorldToScreen(contact->body2->Position);
+		for (ncContact_t* contact = contacts; contact; contact = contact->next) {
+			Vector2 screen = ConvertWorldToScreen(contact->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(contact->body2->position);
 			DrawCircleLines((int)screen.x, (int)screen.y, ConvertWorldToPixel(contact->body1->mass * 0.5f), RED);
 			DrawCircleLines((int)screen2.x, (int)screen2.y, ConvertWorldToPixel(contact->body2->mass * 0.5f), RED);
 		}
@@ -152,8 +176,22 @@ int main(void)
 		prevPos = position;
 	}
 	CloseWindow();
-	//while (jgBodies) {
-	//	free(jgBodies);
-	//}
+	
 	return 0;
 }
+
+// FIXED TIME STEP LOGIC
+// In the main function, we have a fixed time step logic that accumulates delta time and runs the physics simulation at a fixed rate:
+//Outside the main while loop
+//Define a fixedTimestep(rate that physics simulator will run at) set it to 1.0f / 50 (or number of frames you want it to run per second)
+//Define a timeAccumulator(accumulates delta time)
+//Before the physics update
+//Add delta time to time accumulator
+//Create a while () loop that loops while the time accumulator is greater than or equal to the fixed time step
+//Subtract fixed time step from time accumulator
+//Apply Gravitation and other forces
+//Step() each body, make sure to pass in the fixed time step for the timestep
+//Destroy all contacts
+//Create contacts
+//Separate contacts
+//Resolve contacts

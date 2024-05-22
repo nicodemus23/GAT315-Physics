@@ -17,15 +17,15 @@ void AddContact(ncContact_t* contact, ncContact_t** contacts)
 
 void DestroyAllContacts(ncContact_t** contacts)
 {
-	if (!*contacts) return;
+    if (!*contacts) return;
 
-	ncContact_t* contact = *contacts;
-	while (contact)
-	{
-		ncContact_t* next = contact->next;
-		free(contact);
-		contact = next;
-	}
+    ncContact_t* contact = *contacts;
+    while (contact)
+    {
+        ncContact_t* next = contact->next;
+        free(contact);
+        contact = next;
+    }
 
-	*contacts = NULL;
+    *contacts = NULL;
 }

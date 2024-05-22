@@ -1,10 +1,10 @@
 #pragma once
 #include "Body.h"
 
-extern Body* jgBodies;
+extern ncBody* ncBodies;
 extern int jgBodyCount;
 extern Vector2 jgGravity;
 
-Body* CreateBody(Vector2 position, float mass, bodyType bt);
-void AddBody(Body* body);
-void DestroyBody(Body* body);
+ncBody* CreateBody(Vector2 position, float mass, bodyType bt);
+void AddBody(ncBody* body);
+void DestroyBody(ncBody* body);
